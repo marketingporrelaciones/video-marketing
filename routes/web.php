@@ -66,3 +66,11 @@ Route::middleware(['auth'])->group(function () {
 // Por ejemplo: tudominio.com/play/nombre-amigable-del-video
 Route::get('/play/{slug}', [ReproductorController::class, 'publicShow'])->name('videomarketing.public.show');
 
+
+
+// --- RUTAS AJAX PARA LAS PESTAÑAS DEL EDITOR ---
+// Estas rutas devuelven solo el HTML de cada pestaña, sin el layout principal.
+Route::middleware(['auth'])->prefix('editor-ajax')->name('editor.ajax.')->group(function () {
+    Route::get('/seo/{videomarketing}', [ReproductorController::class, 'ajaxSeo'])->name('seo');
+    // Aquí añadiremos las rutas para las otras pestañas (integracion, capitulos, etc.)
+});

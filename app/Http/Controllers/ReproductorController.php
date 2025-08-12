@@ -125,4 +125,18 @@ class ReproductorController extends Controller
         $reproductor = PlayerConfig::where('slug', $slug)->firstOrFail();
         return view('videomarketing.show', compact('reproductor'));
     }
+
+
+
+        // --- MÉTODOS PARA LAS PESTAÑAS AJAX ---
+
+    /**
+     * Devuelve la vista parcial de la pestaña SEO.
+     */
+    public function ajaxSeo(PlayerConfig $videomarketing)
+    {
+        // Pasamos la variable como 'config' porque la vista parcial espera ese nombre.
+        return view('editor.partials.seo', ['config' => $videomarketing]);
+    }
+
 }
