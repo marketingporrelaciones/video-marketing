@@ -277,24 +277,24 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="dynamic-content-container">
-                        </div>
-                </div>
-                <div id="dynamic-content-panel" class="tab-content-panel" style="display: none;"></div>
+                        <div id="dynamic-content-panel" class="tab-content-panel" style="display: none;"></div>
+                        <div id="dynamic-content-container"></div>
+                    </div>
             </form>
             <div class="settings-navbar">
                 <div class="navbar-header"><button class="btn-toggle-navbar" id="toggle-navbar-btn" title="Ocultar menú"><i data-feather="chevron-right"></i></button></div>
                 <div class="navbar-links">
-                    {{-- Esta pestaña es estática, no carga contenido externo, por lo que no cambia. --}}
                     <button class="tab-link active" data-tab="personalizar" data-target-type="static"><i data-feather="sliders"></i><span class="nav-text">Personalizar</span></button>
 
-                    {{-- Estas pestañas cargarán contenido desde rutas de Laravel.
-                    El atributo 'data-source' ahora apunta a una ruta generada por el helper route(). --}}
+                    {{-- ✅ CORRECCIÓN: Cambiamos 'reproductor.ajax.*' por 'editor.ajax.*' para que coincida con web.php --}}
                     <button class="tab-link" data-tab="seo" data-target-type="ajax" data-source="{{ route('editor.ajax.seo', $videomarketing) }}"><i data-feather="bar-chart-2"></i><span class="nav-text">SEO</span></button>
+
+                    {{-- He dejado las otras rutas como '#' para que no den error mientras las creamos. --}}
                     <button class="tab-link" data-tab="integracion" data-target-type="ajax" data-source="#"><i data-feather="share-2"></i><span class="nav-text">Integración</span></button>
                     <button class="tab-link" data-tab="capitulos" data-target-type="ajax" data-source="#"><i data-feather="list"></i><span class="nav-text">Capítulos</span></button>
                     <button class="tab-link" data-tab="ajustes" data-target-type="ajax" data-source="#"><i data-feather="settings"></i><span class="nav-text">Ajustes</span></button>
                 </div>
+
             </div>
         </div>
     </div>
