@@ -51,10 +51,10 @@ class ReproductorController extends Controller
      * Muestra el formulario para editar un reproductor.
      * ✅ CORREGIDO: Laravel ahora nos entrega el objeto PlayerConfig directamente.
      */
-    public function edit(PlayerConfig $videomarketing) // Cambiado de $id a $videomarketing
+    public function edit(PlayerCodeConfig $config) // Cambiamos el nombre del parámetro
     {
         return view('editor.edit', [
-            'config' => $videomarketing // Pasamos el objeto completo a la vista
+            'config' => $config // Ahora coinciden
         ]);
     }
 
@@ -62,7 +62,7 @@ class ReproductorController extends Controller
      * Actualiza un reproductor en la base de datos.
      * ✅ CORREGIDO: Usamos Route Model Binding aquí también.
      */
-    public function update(Request $request, PlayerConfig $videomarketing) // Cambiado de $id a $videomarketing
+    public function update(Request $request, PlayerConfig $config)
     {
         $request->validate([
             'title' => 'required|string|max:255',
@@ -81,9 +81,9 @@ class ReproductorController extends Controller
             }
         }
 
-        $videomarketing->update($datosParaGuardar);
+        $config->update($datosParaGuardar);
 
-        return redirect()->route('videomarketing.edit', $videomarketing->id)
+        return redirect()->route('videomarketing.edit', $config->id)
             ->with('success', '¡Reproductor actualizado con éxito!');
     }
 
@@ -91,9 +91,9 @@ class ReproductorController extends Controller
      * Elimina un reproductor de la base de datos.
      * ✅ CORREGIDO: Más limpio y seguro.
      */
-    public function destroy(PlayerConfig $videomarketing) // Cambiado de $id a $videomarketing
+    public function destroy(PlayerConfig $config) // Cambiado de $id a $config
     {
-        $videomarketing->delete();
+        $config->delete();
         return redirect()->route('videomarketing.index')
             ->with('success', 'Video eliminado correctamente.');
     }
@@ -102,12 +102,12 @@ class ReproductorController extends Controller
      * Clona un reproductor existente.
      * ✅ CORREGIDO: Ahora funciona correctamente.
      */
-    public function clone(PlayerConfig $videomarketing) // Cambiado de $id a $videomarketing
+    public function clone(PlayerConfig $config)
     {
-        // $videomarketing ya es el objeto que queremos clonar, no necesitamos buscarlo.
-        $clon = $videomarketing->replicate();
+        // $config ya es el objeto que queremos clonar, no necesitamos buscarlo.
+        $clon = $config->replicate();
 
-        $clon->title = $videomarketing->title . ' (Copia)';
+        $clon->title = $config->title . ' (Copia)';
         $clon->slug = Str::random(10);
         $clon->created_at = now(); // Actualizamos la fecha de creación
         $clon->updated_at = now();
@@ -133,10 +133,10 @@ class ReproductorController extends Controller
     /**
      * Devuelve la vista parcial de la pestaña SEO.
      */
-    public function ajaxSeo(PlayerConfig $videomarketing)
+    public function ajaxSeo(PlayerConfig $config)
     {
         // Pasamos la variable como 'config' porque la vista parcial espera ese nombre.
-        return view('editor.partials.seo', ['config' => $videomarketing]);
+        return view('editor.partials.seo', ['config' => $config]);
     }
 
 }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Editando: {{ $videomarketing->title }}</title>
+    <title>Editando: {{ $config->title }}</title>
 
     {{-- Cargamos los CSS necesarios directamente aquí --}}
     <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}">
@@ -21,7 +21,7 @@
             @if (isset($curso) && $curso)
                 {{-- CASO 1: Estamos editando un video que pertenece a un curso --}}
                 <a href="{{-- route('cursos.edit', $curso) --}}" class="btn-back">← Volver al Curso</a>
-                <h3 class="header-video-id">CURSOS/VIDEOS/{{ $videomarketing->slug }}</h3>
+                <h3 class="header-video-id">CURSOS/VIDEOS/{{ $config->slug }}</h3>
         </div> {{-- Cierre del header-left para el CASO 1 --}}
 
         <div class="header-right">
@@ -29,11 +29,11 @@
             @else
                 {{-- CASO 2: Estamos editando un video individual desde Video Marketing --}}
                 <a href="{{ route('videomarketing.index') }}" class="btn-back">← Volver a Video Marketing</a>
-                <h3 class="header-video-id">VIDEOS/{{ $videomarketing->slug }}</h3>
+                <h3 class="header-video-id">VIDEOS/{{ $config->slug }}</h3>
         </div> {{-- Cierre del header-left para el CASO 2 --}}
 
         <div class="header-right">
-                <a href="{{ route('videomarketing.show', ['videomarketing' => $videomarketing]) }}" target="_blank" class="btn-action btn-view">Ver Página</a>
+                <a href="{{ route('videomarketing.show', ['videomarketing' => $config]) }}" target="_blank" class="btn-action btn-view">Ver Página</a>
             @endif
 
             {{-- Estos botones son comunes para ambos casos --}}
@@ -49,7 +49,7 @@
         </div>
     </div>
 
-    <div class="editor-container" id="editor-container" data-config="{{ $videomarketing->toJson() }}">
+    <div class="editor-container" id="editor-container" data-config="{{ $config->toJson() }}">
 
         <div class="player-column">
             <div id="player-container">
@@ -58,12 +58,12 @@
 
                     {{-- Se define la URL de la miniatura de YouTube como una opción de respaldo --}}
                     @php
-                        $youtube_thumbnail = 'https://i.ytimg.com/vi/' . $videomarketing->video_id . '/maxresdefault.jpg';
+                        $youtube_thumbnail = 'https://i.ytimg.com/vi/' . $config->video_id . '/maxresdefault.jpg';
                     @endphp
 
                     {{-- La lógica PHP se reemplaza con un operador ternario dentro de las llaves de Blade.
                         SI existe una miniatura personalizada, usa la ruta del 'asset'. SI NO, usa la de YouTube. --}}
-                    <div class="preview-overlay" style="background-image: url('{{ $videomarketing->custom_thumbnail ? asset('storage/' . $videomarketing->custom_thumbnail) : $youtube_thumbnail }}');">
+                    <div class="preview-overlay" style="background-image: url('{{ $config->custom_thumbnail ? asset('storage/' . $config->custom_thumbnail) : $youtube_thumbnail }}');">
                         <div class="preview-content-wrapper">
                             <div id="big-play-button"><svg viewBox="0 0 100 100"><polygon points="40,30 70,50 40,70"></polygon></svg></div>
                             <div class="preview-overlay-text"></div>
@@ -102,11 +102,11 @@
                             <div class="section-content">
                                 <div class="form-group">
                                     <label for="color_controles">Color de Controles</label>
-                                    <input type="color" id="color_controles" name="color_controles" value="{{ old('color_controles', $videomarketing->color_controles) }}">
+                                    <input type="color" id="color_controles" name="color_controles" value="{{ old('color_controles', $config->color_controles) }}">
                                 </div>
                                 <div class="form-group">
                                     <label for="color_barras">Color de Progreso</label>
-                                    <input type="color" id="color_barras" name="color_barras" value="{{ old('color_barras', $videomarketing->color_barras) }}">
+                                    <input type="color" id="color_barras" name="color_barras" value="{{ old('color_barras', $config->color_barras) }}">
                                 </div>
                             </div>
                         </div>
@@ -117,28 +117,28 @@
                             <div class="section-content" data-columns="2">
                                 <div class="form-group-checkbox">
                                     <label class="switch">
-                                        <input type="checkbox" id="ctrl_barra_progreso" name="ctrl_barra_progreso" value="1" @checked(old('ctrl_barra_progreso', $videomarketing->ctrl_barra_progreso))>
+                                        <input type="checkbox" id="ctrl_barra_progreso" name="ctrl_barra_progreso" value="1" @checked(old('ctrl_barra_progreso', $config->ctrl_barra_progreso))>
                                         <span class="slider round"></span>
                                     </label>
                                     <label for="ctrl_barra_progreso" class="switch-label">Barra de Progreso</label>
                                 </div>
                                 <div class="form-group-checkbox">
                                     <label class="switch">
-                                        <input type="checkbox" id="ctrl_ajustes" name="ctrl_ajustes" value="1" @checked(old('ctrl_ajustes', $videomarketing->ctrl_ajustes))>
+                                        <input type="checkbox" id="ctrl_ajustes" name="ctrl_ajustes" value="1" @checked(old('ctrl_ajustes', $config->ctrl_ajustes))>
                                         <span class="slider round"></span>
                                     </label>
                                     <label for="ctrl_ajustes" class="switch-label">Ajustes (Calidad)</label>
                                 </div>
                                 <div class="form-group-checkbox">
                                     <label class="switch">
-                                        <input type="checkbox" id="ctrl_volumen" name="ctrl_volumen" value="1" @checked(old('ctrl_volumen', $videomarketing->ctrl_volumen))>
+                                        <input type="checkbox" id="ctrl_volumen" name="ctrl_volumen" value="1" @checked(old('ctrl_volumen', $config->ctrl_volumen))>
                                         <span class="slider round"></span>
                                     </label>
                                     <label for="ctrl_volumen" class="switch-label">Control de Volumen</label>
                                 </div>
                                 <div class="form-group-checkbox">
                                     <label class="switch">
-                                        <input type="checkbox" id="ctrl_fullscreen" name="ctrl_fullscreen" value="1" @checked(old('ctrl_fullscreen', $videomarketing->ctrl_fullscreen))>
+                                        <input type="checkbox" id="ctrl_fullscreen" name="ctrl_fullscreen" value="1" @checked(old('ctrl_fullscreen', $config->ctrl_fullscreen))>
                                         <span class="slider round"></span>
                                     </label>
                                     <label for="ctrl_fullscreen" class="switch-label">Pantalla Completa</label>
@@ -152,18 +152,18 @@
                             <div class="section-content">
                                 <div class="form-group">
                                     <label for="color_principal">Color Principal</label>
-                                    <input type="color" id="color_principal" name="color_principal" value="{{ old('color_principal', $videomarketing->color_principal) }}">
+                                    <input type="color" id="color_principal" name="color_principal" value="{{ old('color_principal', $config->color_principal) }}">
                                 </div>
                                 <div class="form-group-checkbox">
                                     <label class="switch">
-                                        <input type="checkbox" id="btn_mostrar" name="btn_mostrar" value="1" @checked(old('btn_mostrar', $videomarketing->btn_mostrar))>
+                                        <input type="checkbox" id="btn_mostrar" name="btn_mostrar" value="1" @checked(old('btn_mostrar', $config->btn_mostrar))>
                                         <span class="slider round"></span>
                                     </label>
                                     <label for="btn_mostrar" class="switch-label">Mostrar botón de reproducción</label>
                                 </div>
                                 <div class="form-group">
                                     <label for="texto_previsualizacion">Texto de Previsualización</label>
-                                    <input type="text" id="texto_previsualizacion" name="texto_previsualizacion" value="{{ old('texto_previsualizacion', $videomarketing->texto_previsualizacion) }}" placeholder="Ej: Ver ahora...">
+                                    <input type="text" id="texto_previsualizacion" name="texto_previsualizacion" value="{{ old('texto_previsualizacion', $config->texto_previsualizacion) }}" placeholder="Ej: Ver ahora...">
                                 </div>
                             </div>
                         </div>
@@ -174,7 +174,7 @@
                             <div class="section-content">
                                 <div class="form-group-checkbox">
                                     <label class="switch">
-                                        <input type="checkbox" id="prev_automatica" name="prev_automatica" value="1" @checked(old('prev_automatica', $videomarketing->prev_automatica))>
+                                        <input type="checkbox" id="prev_automatica" name="prev_automatica" value="1" @checked(old('prev_automatica', $config->prev_automatica))>
                                         <span class="slider round"></span>
                                     </label>
                                     <label for="prev_automatica" class="switch-label">Previsualización Automática</label>
@@ -187,72 +187,72 @@
                                 <div class="form-group">
                                     <label for="animacion">Animación</label>
                                     <select id="animacion" name="animacion">
-                                        <option value="none" @selected(old('animacion', $videomarketing->animacion) == 'none')>Ninguna</option>
-                                        <option value="bounce" @selected(old('animacion', $videomarketing->animacion) == 'bounce')>bounce</option>
-                                            <option value="flash" @selected(old('animacion', $videomarketing->animacion) == "flash")>flash</option>
-                                            <option value="pulse"@selected(old('animacion', $videomarketing->animacion) == "pulse")>pulse</option>
-                                            <option value="rubberBand"@selected(old('animacion', $videomarketing->animacion) == "rubberBand")>rubberBand</option>
-                                            <option value="shakeX"@selected(old('animacion', $videomarketing->animacion) == "shakeX")>shakeX</option>
-                                            <option value="shakeY"@selected(old('animacion', $videomarketing->animacion) == "shakeY")>shakeY</option>
-                                            <option value="headShake"@selected(old('animacion', $videomarketing->animacion) == "headShake")>headShake</option>
-                                            <option value="swing"@selected(old('animacion', $videomarketing->animacion) == "swing")>swing</option>
-                                            <option value="tada"@selected(old('animacion', $videomarketing->animacion) == "tada")>tada</option>
-                                            <option value="wobble"@selected(old('animacion', $videomarketing->animacion) == "wobble")>wobble</option>
-                                            <option value="jello"@selected(old('animacion', $videomarketing->animacion) == "jello")>jello</option>
-                                            <option value="heartBeat"@selected(old('animacion', $videomarketing->animacion) == "heartBeat")>heartBeat</option>
+                                        <option value="none" @selected(old('animacion', $config->animacion) == 'none')>Ninguna</option>
+                                        <option value="bounce" @selected(old('animacion', $config->animacion) == 'bounce')>bounce</option>
+                                            <option value="flash" @selected(old('animacion', $config->animacion) == "flash")>flash</option>
+                                            <option value="pulse"@selected(old('animacion', $config->animacion) == "pulse")>pulse</option>
+                                            <option value="rubberBand"@selected(old('animacion', $config->animacion) == "rubberBand")>rubberBand</option>
+                                            <option value="shakeX"@selected(old('animacion', $config->animacion) == "shakeX")>shakeX</option>
+                                            <option value="shakeY"@selected(old('animacion', $config->animacion) == "shakeY")>shakeY</option>
+                                            <option value="headShake"@selected(old('animacion', $config->animacion) == "headShake")>headShake</option>
+                                            <option value="swing"@selected(old('animacion', $config->animacion) == "swing")>swing</option>
+                                            <option value="tada"@selected(old('animacion', $config->animacion) == "tada")>tada</option>
+                                            <option value="wobble"@selected(old('animacion', $config->animacion) == "wobble")>wobble</option>
+                                            <option value="jello"@selected(old('animacion', $config->animacion) == "jello")>jello</option>
+                                            <option value="heartBeat"@selected(old('animacion', $config->animacion) == "heartBeat")>heartBeat</option>
                                         </optgroup>
                                         <optgroup label="Back Entrances">
-                                            <option value="backInDown"@selected(old('animacion', $videomarketing->animacion) == "backInDown")>backInDown</option>
-                                            <option value="backInLeft"@selected(old('animacion', $videomarketing->animacion) == "backInLeft")>backInLeft</option>
-                                            <option value="backInRight"@selected(old('animacion', $videomarketing->animacion) == "backInRight")>backInRight</option>
-                                            <option value="backInUp"@selected(old('animacion', $videomarketing->animacion) == "backInUp")>backInUp</option>
+                                            <option value="backInDown"@selected(old('animacion', $config->animacion) == "backInDown")>backInDown</option>
+                                            <option value="backInLeft"@selected(old('animacion', $config->animacion) == "backInLeft")>backInLeft</option>
+                                            <option value="backInRight"@selected(old('animacion', $config->animacion) == "backInRight")>backInRight</option>
+                                            <option value="backInUp"@selected(old('animacion', $config->animacion) == "backInUp")>backInUp</option>
                                         </optgroup>
                                         <optgroup label="Bouncing Entrances">
-                                            <option value="bounceIn"@selected(old('animacion', $videomarketing->animacion) == "bounceIn")>bounceIn</option>
-                                            <option value="bounceInDown"@selected(old('animacion', $videomarketing->animacion) == "bounceInDown")>bounceInDown</option>
-                                            <option value="bounceInLeft"@selected(old('animacion', $videomarketing->animacion) == "bounceInLeft")>bounceInLeft</option>
-                                            <option value="bounceInRight"@selected(old('animacion', $videomarketing->animacion) == "bounceInRight")>bounceInRight</option>
-                                            <option value="bounceInUp"@selected(old('animacion', $videomarketing->animacion) == "bounceInUp")>bounceInUp</option>
+                                            <option value="bounceIn"@selected(old('animacion', $config->animacion) == "bounceIn")>bounceIn</option>
+                                            <option value="bounceInDown"@selected(old('animacion', $config->animacion) == "bounceInDown")>bounceInDown</option>
+                                            <option value="bounceInLeft"@selected(old('animacion', $config->animacion) == "bounceInLeft")>bounceInLeft</option>
+                                            <option value="bounceInRight"@selected(old('animacion', $config->animacion) == "bounceInRight")>bounceInRight</option>
+                                            <option value="bounceInUp"@selected(old('animacion', $config->animacion) == "bounceInUp")>bounceInUp</option>
                                         </optgroup>
                                         <optgroup label="Fading Entrances">
-                                            <option value="fadeIn"@selected(old('animacion', $videomarketing->animacion) == "fadeIn")>fadeIn</option>
-                                            <option value="fadeInDown"@selected(old('animacion', $videomarketing->animacion) == "fadeInDown")>fadeInDown</option>
-                                            <option value="fadeInDownBig"@selected(old('animacion', $videomarketing->animacion) == "fadeInDownBig")>fadeInDownBig</option>
-                                            <option value="fadeInLeft"@selected(old('animacion', $videomarketing->animacion) == "fadeInLeft")>fadeInLeft</option>
-                                            <option value="fadeInLeftBig"@selected(old('animacion', $videomarketing->animacion) == "fadeInLeftBig")>fadeInLeftBig</option>
-                                            <option value="fadeInRight"@selected(old('animacion', $videomarketing->animacion) == "fadeInRight")>fadeInRight</option>
-                                            <option value="fadeInRightBig"@selected(old('animacion', $videomarketing->animacion) == "fadeInRightBig")>fadeInRightBig</option>
-                                            <option value="fadeInUp"@selected(old('animacion', $videomarketing->animacion) == "fadeInUp")>fadeInUp</option>
-                                            <option value="fadeInUpBig"@selected(old('animacion', $videomarketing->animacion) == "fadeInUpBig")>fadeInUpBig</option>
+                                            <option value="fadeIn"@selected(old('animacion', $config->animacion) == "fadeIn")>fadeIn</option>
+                                            <option value="fadeInDown"@selected(old('animacion', $config->animacion) == "fadeInDown")>fadeInDown</option>
+                                            <option value="fadeInDownBig"@selected(old('animacion', $config->animacion) == "fadeInDownBig")>fadeInDownBig</option>
+                                            <option value="fadeInLeft"@selected(old('animacion', $config->animacion) == "fadeInLeft")>fadeInLeft</option>
+                                            <option value="fadeInLeftBig"@selected(old('animacion', $config->animacion) == "fadeInLeftBig")>fadeInLeftBig</option>
+                                            <option value="fadeInRight"@selected(old('animacion', $config->animacion) == "fadeInRight")>fadeInRight</option>
+                                            <option value="fadeInRightBig"@selected(old('animacion', $config->animacion) == "fadeInRightBig")>fadeInRightBig</option>
+                                            <option value="fadeInUp"@selected(old('animacion', $config->animacion) == "fadeInUp")>fadeInUp</option>
+                                            <option value="fadeInUpBig"@selected(old('animacion', $config->animacion) == "fadeInUpBig")>fadeInUpBig</option>
                                         </optgroup>
                                         <optgroup label="Flippers">
-                                            <option value="flip"@selected(old('animacion', $videomarketing->animacion) == "flip")>flip</option>
-                                            <option value="flipInX"@selected(old('animacion', $videomarketing->animacion) == "flipInX")>flipInX</option>
-                                            <option value="flipInY"@selected(old('animacion', $videomarketing->animacion) == "flipInY")>flipInY</option>
+                                            <option value="flip"@selected(old('animacion', $config->animacion) == "flip")>flip</option>
+                                            <option value="flipInX"@selected(old('animacion', $config->animacion) == "flipInX")>flipInX</option>
+                                            <option value="flipInY"@selected(old('animacion', $config->animacion) == "flipInY")>flipInY</option>
                                         </optgroup>
                                         <optgroup label="Lightspeed">
-                                            <option value="lightSpeedInRight"@selected(old('animacion', $videomarketing->animacion) == "lightSpeedInRight")>lightSpeedInRight</option>
-                                            <option value="lightSpeedInLeft"@selected(old('animacion', $videomarketing->animacion) == "lightSpeedInLeft")>lightSpeedInLeft</option>
+                                            <option value="lightSpeedInRight"@selected(old('animacion', $config->animacion) == "lightSpeedInRight")>lightSpeedInRight</option>
+                                            <option value="lightSpeedInLeft"@selected(old('animacion', $config->animacion) == "lightSpeedInLeft")>lightSpeedInLeft</option>
                                         </optgroup>
                                         <optgroup label="Rotating Entrances">
-                                            <option value="rotateIn"@selected(old('animacion', $videomarketing->animacion) == "rotateIn")>rotateIn</option>
-                                            <option value="rotateInDownLeft"@selected(old('animacion', $videomarketing->animacion) == "rotateInDownLeft")>rotateInDownLeft</option>
-                                            <option value="rotateInDownRight"@selected(old('animacion', $videomarketing->animacion) == "rotateInDownRight")>rotateInDownRight</option>
-                                            <option value="rotateInUpLeft"@selected(old('animacion', $videomarketing->animacion) == "rotateInUpLeft")>rotateInUpLeft</option>
-                                            <option value="rotateInUpRight"@selected(old('animacion', $videomarketing->animacion) == "rotateInUpRight")>rotateInUpRight</option>
+                                            <option value="rotateIn"@selected(old('animacion', $config->animacion) == "rotateIn")>rotateIn</option>
+                                            <option value="rotateInDownLeft"@selected(old('animacion', $config->animacion) == "rotateInDownLeft")>rotateInDownLeft</option>
+                                            <option value="rotateInDownRight"@selected(old('animacion', $config->animacion) == "rotateInDownRight")>rotateInDownRight</option>
+                                            <option value="rotateInUpLeft"@selected(old('animacion', $config->animacion) == "rotateInUpLeft")>rotateInUpLeft</option>
+                                            <option value="rotateInUpRight"@selected(old('animacion', $config->animacion) == "rotateInUpRight")>rotateInUpRight</option>
                                         </optgroup>
                                         <optgroup label="Zooming Entrances">
-                                            <option value="zoomIn"@selected(old('animacion', $videomarketing->animacion) == "zoomIn")>zoomIn</option>
-                                            <option value="zoomInDown"@selected(old('animacion', $videomarketing->animacion) == "zoomInDown")>zoomInDown</option>
-                                            <option value="zoomInLeft"@selected(old('animacion', $videomarketing->animacion) == "zoomInLeft")>zoomInLeft</option>
-                                            <option value="zoomInRight"@selected(old('animacion', $videomarketing->animacion) == "zoomInRight")>zoomInRight</option>
-                                            <option value="zoomInUp"@selected(old('animacion', $videomarketing->animacion) == "zoomInUp")>zoomInUp</option>
+                                            <option value="zoomIn"@selected(old('animacion', $config->animacion) == "zoomIn")>zoomIn</option>
+                                            <option value="zoomInDown"@selected(old('animacion', $config->animacion) == "zoomInDown")>zoomInDown</option>
+                                            <option value="zoomInLeft"@selected(old('animacion', $config->animacion) == "zoomInLeft")>zoomInLeft</option>
+                                            <option value="zoomInRight"@selected(old('animacion', $config->animacion) == "zoomInRight")>zoomInRight</option>
+                                            <option value="zoomInUp"@selected(old('animacion', $config->animacion) == "zoomInUp")>zoomInUp</option>
                                         </optgroup>
                                         <optgroup label="Sliding Entrances">
-                                            <option value="slideInDown"@selected(old('animacion', $videomarketing->animacion) == "slideInDown")>slideInDown</option>
-                                            <option value="slideInLeft"@selected(old('animacion', $videomarketing->animacion) == "slideInLeft")>slideInLeft</option>
-                                            <option value="slideInRight"@selected(old('animacion', $videomarketing->animacion) == "slideInRight")>slideInRight</option>
-                                            <option value="slideInUp"@selected(old('animacion', $videomarketing->animacion) == "<slideInUp></slideInUp>")>slideInUp</option>
+                                            <option value="slideInDown"@selected(old('animacion', $config->animacion) == "slideInDown")>slideInDown</option>
+                                            <option value="slideInLeft"@selected(old('animacion', $config->animacion) == "slideInLeft")>slideInLeft</option>
+                                            <option value="slideInRight"@selected(old('animacion', $config->animacion) == "slideInRight")>slideInRight</option>
+                                            <option value="slideInUp"@selected(old('animacion', $config->animacion) == "<slideInUp></slideInUp>")>slideInUp</option>
                                         </optgroup>
                                     </select>
                                 </div>
@@ -263,11 +263,11 @@
                                     <div class="form-group-vertical">
                                         <div class="thumbnail-header">
                                             <label for="custom_thumbnail">Personalizada</label>
-                                            <button type="button" id="delete-thumbnail-btn" class="btn-delete-thumb" @if(empty($videomarketing->custom_thumbnail)) style="display: none;" @endif>Eliminar</button>
+                                            <button type="button" id="delete-thumbnail-btn" class="btn-delete-thumb" @if(empty($config->custom_thumbnail)) style="display: none;" @endif>Eliminar</button>
                                         </div>
 
                                         {{-- 1. La imagen de previsualización ahora es una etiqueta <img> --}}
-                                        <img src="{{ $videomarketing->custom_thumbnail ? asset('storage/' . $videomarketing->custom_thumbnail) : 'https://i.ytimg.com/vi/' . $videomarketing->video_id . '/mqdefault.jpg' }}" id="thumbnail-preview" alt="Vista previa de la miniatura">
+                                        <img src="{{ $config->custom_thumbnail ? asset('storage/' . $config->custom_thumbnail) : 'https://i.ytimg.com/vi/' . $config->video_id . '/mqdefault.jpg' }}" id="thumbnail-preview" alt="Vista previa de la miniatura">
 
                                         {{-- 2. Los controles del formulario son hermanos de la imagen, no sus hijos --}}
                                         <input type="file" id="custom_thumbnail" name="custom_thumbnail" accept="image/jpeg, image/png, image/gif">
@@ -286,14 +286,14 @@
                 <div class="navbar-links">
                     <button class="tab-link active" data-tab="personalizar" data-target-type="static"><i data-feather="sliders"></i><span class="nav-text">Personalizar</span></button>
 
-                    {{-- ✅ CORRECCIÓN: Cambiamos 'reproductor.ajax.*' por 'editor.ajax.*' para que coincida con web.php --}}
-                    <button class="tab-link" data-tab="seo" data-target-type="ajax" data-source="{{ route('editor.ajax.seo', $videomarketing) }}"><i data-feather="bar-chart-2"></i><span class="nav-text">SEO</span></button>
+                    {{-- ✅ CORRECCIÓN FINAL: Usamos la variable '$config' que es la que recibe la vista --}}
+                    <button class="tab-link" data-tab="seo" data-target-type="ajax" data-source="{{ route('editor.ajax.seo', $config) }}"><i data-feather="bar-chart-2"></i><span class="nav-text">SEO</span></button>
 
-                    {{-- He dejado las otras rutas como '#' para que no den error mientras las creamos. --}}
                     <button class="tab-link" data-tab="integracion" data-target-type="ajax" data-source="#"><i data-feather="share-2"></i><span class="nav-text">Integración</span></button>
                     <button class="tab-link" data-tab="capitulos" data-target-type="ajax" data-source="#"><i data-feather="list"></i><span class="nav-text">Capítulos</span></button>
                     <button class="tab-link" data-tab="ajustes" data-target-type="ajax" data-source="#"><i data-feather="settings"></i><span class="nav-text">Ajustes</span></button>
                 </div>
+
 
             </div>
         </div>
