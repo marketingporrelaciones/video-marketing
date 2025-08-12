@@ -39,3 +39,8 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\Admin\AdminController::class, 'dashboard'])->name('admin.dashboard');
 });
 
+
+
+// ✅ AÑADIR ESTA NUEVA RUTA PARA GUARDAR
+Route::put('/videomarketing/{id}', [ReproductorController::class, 'update'])
+    ->name('videomarketing.update');

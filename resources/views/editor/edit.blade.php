@@ -91,7 +91,9 @@
         </div>
 
         <div class="settings-column">
-            <form id="configForm" method="POST" onsubmit="return false;">
+            <form id="configForm" method="POST" action="{{ route('videomarketing.update', $config->id) }}">
+                @csrf
+                @method('PUT')
                 <div class="settings-content">
                     <div id="personalizar" class="tab-content">
                         {{-- SECCIÓN COLORES --}}

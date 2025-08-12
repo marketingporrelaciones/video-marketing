@@ -2,161 +2,80 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Reproductor;
+use App\Models\PlayerConfig; // Asegúrate de que el nombre del modelo sea correcto. Si lo llamaste Reproductor, cámbialo aquí.
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log; // Para registrar errores si algo falla.
 
 class ReproductorController extends Controller
 {
     /**
-     * Muestra la lista de reproductores.
+     * Muestra el formulario para editar un reproductor específico.
+     * Este método busca el reproductor por su ID y lo pasa a la vista.
      */
-    public function index(Request $request)
+    public function edit($id)
     {
-        $reproductores = $request->user()->reproductores()->latest()->get();
-        return view('videomarketing.index', compact('reproductores'));
-    }
+        // findOrFail() es muy útil: si no encuentra el ID, muestra una página de error 404 automáticamente.
+        $config = PlayerConfig::findOrFail($id);
 
-    /**
-     * Guarda un nuevo reproductor.
-     */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'youtube_url' => 'required|string',
+        // Retornamos la vista 'editor.edit' y le pasamos la variable $config.
+        return view('editor.edit', [
+            'config' => $config
         ]);
-
-        preg_match('/^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/', $validated['youtube_url'], $matches);
-        $videoId = $matches[1] ?? null;
-
-        if (!$videoId) {
-            return back()->withErrors(['youtube_url' => 'La URL de YouTube no es válida.']);
-        }
-
-        $reproductor = $request->user()->reproductores()->create([
-            'video_id' => $videoId,
-            'title' => 'Nuevo Video (Editar Título)',
-            'slug' => Str::random(8)
-        ]);
-
-        return redirect()->route('videomarketing.edit', $reproductor)->with('success', '¡Reproductor creado!');
     }
 
     /**
-     * Muestra la página pública de un reproductor.
+     * ✅ MÉTODO NUEVO Y CORREGIDO
+     * Actualiza un reproductor específico en la base de datos.
+     * Este es el equivalente a tu antiguo 'actualizar_reproductor.php'.
      */
-    public function show(Reproductor $videomarketing)
+    public function update(Request $request, $id)
     {
-        $cacheKey = 'reproductor-' . $videomarketing->id;
-        $view = Cache::remember($cacheKey, 3600, function () use ($videomarketing) {
-            return view('videomarketing.show', ['videomarketing' => $videomarketing])->render();
-        });
-        return $view;
-    }
+        // 1. Buscamos el reproductor que vamos a actualizar.
+        $config = PlayerConfig::findOrFail($id);
 
-    /**
-     * Muestra la página para editar un reproductor.
-     */
-    public function edit(Reproductor $videomarketing)
-    {
-        return view('editor.edit', ['videomarketing' => $videomarketing]);
-    }
-
-    /**
-     * Actualiza un reproductor existente.
-     */
-    public function update(Request $request, Reproductor $videomarketing)
-    {
-        // 1. Validamos todos los campos que SÍ queremos guardar en la BD.
+        // 2. VALIDACIÓN: Aquí definimos las reglas para los datos del formulario.
+        // Es una buena práctica para asegurar la integridad de tus datos.
+        // Por ahora validamos solo el título, pero podemos añadir más.
         $validatedData = $request->validate([
-            'title' => 'sometimes|string|max:255',
-            'slug' => 'sometimes|string|max:255|unique:reproductores,slug,' . $videomarketing->id,
-            'color_principal' => 'sometimes|string|max:7',
-            'color_controles' => 'sometimes|string|max:7',
-            'color_barras' => 'sometimes|string|max:7',
-            'ctrl_barra_progreso' => 'sometimes|boolean',
-            'ctrl_ajustes' => 'sometimes|boolean',
-            'ctrl_volumen' => 'sometimes|boolean',
-            'ctrl_fullscreen' => 'sometimes|boolean',
-            'btn_mostrar' => 'sometimes|boolean',
-            'texto_previsualizacion' => 'nullable|string|max:255',
-            'prev_automatica' => 'sometimes|boolean',
-            'animacion' => 'sometimes|string',
+            'title' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255',
+            // Puedes añadir más reglas de validación aquí para otros campos.
         ]);
 
-        // 2. Lógica para manejar la miniatura por separado.
-        if ($request->input('delete_thumbnail') == '1') {
-            if ($videomarketing->custom_thumbnail) {
-                Storage::disk('public')->delete($videomarketing->custom_thumbnail);
-                $videomarketing->custom_thumbnail = null;
+        try {
+            // 3. ASIGNACIÓN DE DATOS: Tomamos todos los datos que llegaron del formulario.
+            $datosParaGuardar = $request->all();
+
+            // --- Lógica para los checkboxes ---
+            // Los formularios HTML no envían los checkboxes si no están marcados.
+            // Este bucle asegura que si un checkbox no se envía, se guarde como 0 (desactivado).
+            $checkboxes = [
+                'ctrl_barra_progreso', 'ctrl_ajustes', 'ctrl_volumen', 'ctrl_fullscreen',
+                'btn_mostrar', 'prev_automatica', 'password_enabled'
+            ];
+
+            foreach ($checkboxes as $checkbox) {
+                if (!$request->has($checkbox)) {
+                    $datosParaGuardar[$checkbox] = 0;
+                }
             }
-        } elseif ($request->hasFile('custom_thumbnail')) {
-            if ($videomarketing->custom_thumbnail) {
-                Storage::disk('public')->delete($videomarketing->custom_thumbnail);
-            }
-            $path = $request->file('custom_thumbnail')->store('thumbnails', 'public');
-            $videomarketing->custom_thumbnail = $path;
+
+            // 4. GUARDADO: Usamos el método update() para guardar los datos en la base de datos.
+            // Esto funciona gracias a la propiedad '$fillable' que definimos en el Modelo.
+            $config->update($datosParaGuardar);
+
+            // 5. RESPUESTA: Redirigimos al usuario de vuelta a la página de edición.
+            // El método with() adjunta un "mensaje flash" de éxito que podemos mostrar en la vista.
+            return redirect()->route('videomarketing.edit', $config->id)
+                ->with('success', '¡Reproductor actualizado con éxito!');
+
+        } catch (\Exception $e) {
+            // Si algo sale mal al guardar, lo registramos en los logs de Laravel
+            // y redirigimos con un mensaje de error.
+            Log::error('Error al actualizar el reproductor: ' . $e->getMessage());
+
+            return redirect()->route('videomarketing.edit', $config->id)
+                ->with('error', 'Hubo un problema al guardar los cambios.');
         }
-
-        // 3. Preparamos los datos booleanos (checkboxes).
-        $booleanFields = ['ctrl_barra_progreso', 'ctrl_ajustes', 'ctrl_volumen', 'ctrl_fullscreen', 'btn_mostrar', 'prev_automatica'];
-        foreach ($booleanFields as $field) {
-            if ($request->has($field)) {
-                $validatedData[$field] = $request->input($field);
-            } else {
-                 // Si el checkbox no se envió, significa que está desactivado (valor 0).
-                $validatedData[$field] = 0;
-            }
-        }
-
-        // 4. Actualizamos el modelo SOLO con los datos validados y preparados.
-        $videomarketing->update($validatedData);
-        $videomarketing->save(); // Guardamos los cambios de la miniatura
-
-        // 5. Invalidamos el caché.
-        Cache::forget('reproductor-' . $videomarketing->id);
-
-        // 6. Devolvemos la respuesta JSON de éxito.
-        return response()->json([
-            'success' => true,
-            'message' => '¡Ajustes guardados correctamente!',
-            'updated_data' => $videomarketing->fresh()
-        ]);
-    }
-
-    /**
-     * Elimina un reproductor.
-     */
-    public function destroy(Reproductor $videomarketing)
-    {
-        if ($videomarketing->custom_thumbnail) {
-            Storage::disk('public')->delete($videomarketing->custom_thumbnail);
-        }
-        $videomarketing->delete();
-        return redirect()->route('videomarketing.index')->with('success', 'Reproductor eliminado.');
-    }
-
-    // --- MÉTODOS PARA LAS PESTAÑAS AJAX ---
-
-    public function ajaxSeo(Reproductor $videomarketing)
-    {
-        return view('editor.partials.seo', ['videomarketing' => $videomarketing]);
-    }
-
-    public function ajaxIntegracion(Reproductor $videomarketing)
-    {
-        return view('editor.partials.integracion', ['videomarketing' => $videomarketing]);
-    }
-
-    public function ajaxCapitulos(Reproductor $videomarketing)
-    {
-        return view('editor.partials.capitulos', ['videomarketing' => $videomarketing]);
-    }
-
-    public function ajaxAjustes(Reproductor $videomarketing)
-    {
-        return view('editor.partials.ajustes', ['videomarketing' => $videomarketing]);
     }
 }
