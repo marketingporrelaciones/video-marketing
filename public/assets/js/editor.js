@@ -423,72 +423,61 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     // --- FIN DEL CÓDIGO DE REEMPLAZO ---
 
+    // --- MANEJO DE PESTAÑAS DEL PANEL DE CONFIGURACIÓN (VERSIÓN CORREGIDA CON AJAX) ---
     const tabLinks = document.querySelectorAll('.tab-link');
-    const staticPanel = document.getElementById('personalizar');
+    const staticTabContents = document.querySelectorAll('.tab-content'); // Contenidos estáticos
+    const dynamicContentPanel = document.getElementById('dynamic-content-panel'); // Panel para contenido AJAX
 
     tabLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            const targetType = link.dataset.targetType;
-            const sourceFile = link.dataset.source;
-            tabLinks.forEach(innerLink => innerLink.classList.remove('active'));
+        link.addEventListener('click', (e) => {
+            e.preventDefault(); // Evitamos cualquier comportamiento por defecto del botón
+
+            const tabId = link.getAttribute('data-tab');
+            const targetType = link.getAttribute('data-target-type');
+            const dataSource = link.getAttribute('data-source');
+
+            // 1. Desactivar todas las pestañas y ocultar todos los paneles
+            tabLinks.forEach(l => l.classList.remove('active'));
+            staticTabContents.forEach(content => {
+                content.style.display = 'none';
+            });
+            dynamicContentPanel.style.display = 'none';
+            dynamicContentPanel.innerHTML = ''; // Limpiamos el contenido anterior
+
+            // 2. Activar la pestaña actual
             link.classList.add('active');
-            staticPanel.style.display = 'none';
-            dynamicPanel.style.display = 'none';
+
+            // 3. Decidir si cargar contenido estático o dinámico
             if (targetType === 'static') {
-                staticPanel.style.display = 'block';
-            } else if (targetType === 'ajax' && sourceFile) {
-                dynamicPanel.style.display = 'block';
-                if (dynamicPanel.dataset.loadedSource === sourceFile) {
-                    // CURSO: Si la pestaña ya estaba cargada, forzamos una recarga de los datos
-                    // para que la lógica de setupImagePreview se vuelva a ejecutar
-                    // y revise nuestra "caja de memoria".
-                    loadDataIntoForm(window.configData);
-                    return;
+                // Caso 1: Pestaña estática (como 'Personalizar')
+                const activeStaticContent = document.getElementById(tabId);
+                if (activeStaticContent) {
+                    activeStaticContent.style.display = 'block';
                 }
-                dynamicPanel.innerHTML = '<p>Cargando...</p>';
-                fetch(sourceFile)
-                .then(response => response.ok ? response.text() : Promise.reject('Error al cargar.'))
-                // --- CURSO: REEMPLAZA CON ESTE BLOQUE CORREGIDO ---
-                .then(html => {
-                    dynamicPanel.innerHTML = html;
-                    dynamicPanel.dataset.loadedSource = sourceFile;
-                    loadDataIntoForm(window.configData);
+            } else if (targetType === 'ajax' && dataSource) {
+                // Caso 2: Pestaña AJAX (SEO, Integración, etc.)
+                dynamicContentPanel.style.display = 'block';
+                dynamicContentPanel.innerHTML = '<div class="p-6">Cargando...</div>'; // Mensaje de carga
 
-                    // --- LÓGICA CORREGIDA ---
-                    // Ahora cada `if` está separado y comprueba el archivo correcto.
-
-                    // SI (if) se cargó la pestaña de SEO...
-                    if (sourceFile === 'seo.php') {
-                        // ...ENTONCES, activamos los contadores.
-                        // Usamos los IDs que tú mismo pusiste en seo.php, ¡están perfectos!
-                        initCharCounter('seo_title', 'title-char-counter', 60);
-                        initCharCounter('seo_description', 'desc-char-counter', 160);
-                        initKeywordsInput();
-                        // --- CURSO: AÑADE ESTAS DOS LÍNEAS AL FINAL DEL BLOQUE 'IF' ---
-                        initOgFieldSync('seo_title', 'og_title', 'El titular para Facebook, WhatsApp, etc.');
-                        initOgFieldSync('seo_description', 'og_description', 'El texto que aparecerá al compartir el enlace.');
-                        // --- CURSO: AÑADE ESTAS DOS LÍNEAS PARA LOS NUEVOS CONTADORES ---
-                        initCharCounter('og_title', 'og-title-counter', 70);
-                        initCharCounter('og_description', 'og-desc-counter', 200);
-                    }
-
-                    // SI (if) se cargó la pestaña de Ajustes...
-                    if (sourceFile === 'ajustes.php') {
-                        // ...ENTONCES, disparamos el evento para las pruebas A/B.
-                        document.dispatchEvent(new CustomEvent('abPanelLoaded'));
-                    }
-                    // =====> AÑADE ESTE NUEVO BLOQUE 'IF' AQUÍ <=====
-                    // SI (if) se cargó la pestaña de Capítulos...
-                    if (sourceFile === 'capitulos.php') {
-                        // ...ENTONCES, disparamos el evento para el editor de capítulos.
-                        document.dispatchEvent(new CustomEvent('chaptersPanelLoaded'));
-                    }
-                })
-                // --- FIN DEL BLOQUE CORREGIDO ---
-                .catch(error => { dynamicPanel.innerHTML = `<p style="color: red;">${error}</p>`; });
+                fetch(dataSource)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('La respuesta de la red no fue correcta.');
+                        }
+                        return response.text();
+                    })
+                    .then(html => {
+                        // Cargamos el HTML recibido en nuestro panel dinámico
+                        dynamicContentPanel.innerHTML = html;
+                    })
+                    .catch(error => {
+                        console.error('Error al cargar la pestaña:', error);
+                        dynamicContentPanel.innerHTML = '<div class="p-6 text-red-500">Error al cargar el contenido.</div>';
+                    });
             }
         });
     });
+
 
 
     const saveButton = document.querySelector('.btn-save');
