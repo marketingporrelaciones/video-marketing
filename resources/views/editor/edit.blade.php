@@ -279,9 +279,8 @@
                         </div>
                         <div id="dynamic-content-container">
                         </div>
-                    <div id="dynamic-content-panel" class="tab-content-panel" style="display: none;">
-                    </div>
                 </div>
+                <div id="dynamic-content-panel" class="tab-content-panel" style="display: none;"></div>
             </form>
             <div class="settings-navbar">
                 <div class="navbar-header"><button class="btn-toggle-navbar" id="toggle-navbar-btn" title="Ocultar menú"><i data-feather="chevron-right"></i></button></div>
@@ -290,11 +289,11 @@
                     <button class="tab-link active" data-tab="personalizar" data-target-type="static"><i data-feather="sliders"></i><span class="nav-text">Personalizar</span></button>
 
                     {{-- Estas pestañas cargarán contenido desde rutas de Laravel.
-                        El atributo 'data-source' ahora apunta a una ruta generada por el helper route(). --}}
-                    <button class="tab-link" data-tab="seo" data-target-type="ajax" data-source="{{ route('reproductor.ajax.seo', $videomarketing) }}"><i data-feather="bar-chart-2"></i><span class="nav-text">SEO</span></button>
-                    <button class="tab-link" data-tab="integracion" data-target-type="ajax" data-source="{{ route('reproductor.ajax.integracion', $videomarketing) }}"><i data-feather="share-2"></i><span class="nav-text">Integración</span></button>
-                    <button class="tab-link" data-tab="capitulos" data-target-type="ajax" data-source="{{ route('reproductor.ajax.capitulos', $videomarketing) }}"><i data-feather="list"></i><span class="nav-text">Capítulos</span></button>
-                    <button class="tab-link" data-tab="ajustes" data-target-type="ajax" data-source="{{ route('reproductor.ajax.ajustes', $videomarketing) }}"><i data-feather="settings"></i><span class="nav-text">Ajustes</span></button>
+                    El atributo 'data-source' ahora apunta a una ruta generada por el helper route(). --}}
+                    <button class="tab-link" data-tab="seo" data-target-type="ajax" data-source="{{ route('editor.ajax.seo', $videomarketing) }}"><i data-feather="bar-chart-2"></i><span class="nav-text">SEO</span></button>
+                    <button class="tab-link" data-tab="integracion" data-target-type="ajax" data-source="#"><i data-feather="share-2"></i><span class="nav-text">Integración</span></button>
+                    <button class="tab-link" data-tab="capitulos" data-target-type="ajax" data-source="#"><i data-feather="list"></i><span class="nav-text">Capítulos</span></button>
+                    <button class="tab-link" data-tab="ajustes" data-target-type="ajax" data-source="#"><i data-feather="settings"></i><span class="nav-text">Ajustes</span></button>
                 </div>
             </div>
         </div>
