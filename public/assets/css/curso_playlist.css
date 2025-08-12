@@ -1,0 +1,649 @@
+body {
+    background-color: #1a1b20; /* Un gris oscuro general para toda la página */
+    color: #e0e6f1;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    /* La propiedad display: flex; aquí puede ser eliminada o reemplazada por block si ya la gestiona .course-layout */
+}
+
+.course-layout {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    background-color: #1a1b20; /* Mantiene el color oscuro que pusimos en el body */
+    /* overflow: hidden; /* Mantener esto si no quieres scroll en el layout principal */
+}
+
+/* --- Columna 1: Video (Izquierda) --- */
+/* .video-player-column {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background-color: #24262d;
+    overflow-y: auto;
+} */
+.video-player-column {
+    flex: 2.5; /* Ocupa más espacio (ej. 70% del ancho) */
+    background-color: #24262d; /* Un gris oscuro para la columna del video */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px; /* Espacio alrededor del reproductor */
+    box-sizing: border-box; /* Incluye padding en el ancho/alto */
+    overflow-y: hidden; /* Permite scroll si el contenido de la descripción es largo */
+}
+#player-container {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background-color: #000;
+    margin-bottom: 20px;
+    position: relative; /* Añadido para posicionar el iframe si fuera necesario, aunque ya lo hace el hijo */
+    overflow: hidden; /* Asegura que no haya desbordamientos */
+}
+
+#course-video-iframe { /* Nuevo estilo para el iframe */
+    position: absolute; /* Posicionamiento absoluto para que llene el contenedor */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none; /* Elimina el borde por defecto del iframe */
+}
+.lesson-title h1 { margin: 0; font-size: 1.8em; }
+.playlist-column {
+    width: 350px;
+    min-width: 350px;
+    background-color: #24262d;
+    padding: 20px;
+    height: 100vh;
+    overflow-y: auto;
+}
+.playlist-column h2 { margin-top: 0; }
+.lesson-list { list-style: none; padding: 0; margin: 0; }
+.lesson-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.lesson-item:hover { background-color: #30323a; }
+.lesson-item.active { background-color: #0084ff; color: #fff; }
+.lesson-number {
+    margin-right: 15px;
+    font-weight: 600;
+    color: #a0a7b1;
+}
+.lesson-item.active .lesson-number { color: #fff; }
+
+/* Estilos para la miniatura dentro de la lección */
+.lesson-thumbnail {
+    width: 90px; /* Ancho fijo para la miniatura */
+    height: 50px; /* Altura fija para mantener la proporción 16:9 (aproximado) */
+    flex-shrink: 0; /* Evita que la miniatura se encoja si el texto es muy largo */
+    border-radius: 4px;
+    overflow: hidden; /* Asegura que la imagen se recorte si es más grande */
+    margin-right: 15px; /* Espacio entre la miniatura y el texto */
+    position: relative; /* Para el overlay de play o numeración si se añade */
+    background-color: #000; /* Fondo negro por si la imagen no carga */
+}
+
+.lesson-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Recorta la imagen para llenar el contenedor manteniendo la proporción */
+    display: block; /* Elimina espacio extra debajo de la imagen */
+}
+
+/* Estilos para la información de la lección (número y título) */
+/* Estilos para la descripción que aparece en la lista de lecciones */
+.lesson-description-list {
+    font-size: 0.8em; /* Texto más pequeño */
+    color: #a0a7b1; /* Un color de texto más sutil */
+    max-height: 0; /* Colapsado por defecto */
+    transition: opacity 0.3s ease, max-height 0.3s ease; /* Transición suave */
+    line-height: 1.4;
+}
+
+.lesson-index {
+    font-size: 0.8em;
+    color: #a0a7b1; /* Un gris más suave para el número */
+    margin-bottom: 3px; /* Espacio entre el número y el título */
+}
+
+.lesson-title {
+    font-size: 0.95em;
+    font-weight: 500;
+    color: #e0e6f1; /* Color de texto para el título */
+    line-height: 1.3; /* Ajusta el interlineado */
+}
+
+/* Ajuste al lesson-item para usar flexbox y alinear contenido */
+.lesson-item {
+    display: flex; /* Habilita flexbox para alinear miniatura y texto */
+    align-items: center; /* Alinea verticalmente los elementos al centro */
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-bottom: 8px; /* Espacio entre lecciones */
+}
+.lesson-item:last-child {
+    margin-bottom: 0; /* No hay margen inferior en el último elemento */
+}
+.lesson-item:hover {
+    background-color: #363940;
+}
+.lesson-item.active {
+    background-color: #0084ff;
+    color: #ffffff;
+}
+
+.lesson-item.active .lesson-index,
+.lesson-item.active .lesson-title {
+    color: #ffffff; /* Asegura que el texto sea blanco en estado activo */
+}
+
+
+.course-content-column {
+    flex: 1; /* Mantendrá 1 parte del espacio, ahora la proporción total es 4:1 (video:barra) */
+    min-width: 280px; /* Un poco más pequeño como mínimo, si es necesario */
+    background-color: #2c2f36;
+    color: #e0e6f1;
+    overflow-y: auto;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+    box-sizing: border-box;
+}
+
+.course-sidebar {
+    padding: 20px;
+    /* Para pantallas pequeñas, podría ser menos padding si es necesario */
+}
+
+
+/* --- ESTILOS PARA EL INDICADOR DE CARGA DEL REPRODUCTOR --- */
+#player-loading-overlay {
+    position: absolute; /* Para que se superponga al reproductor */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Fondo oscuro semitransparente */
+    display: flex; /* Para centrar el spinner y el texto */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #e0e6f1; /* Color de texto claro */
+    font-size: 1.2em;
+    z-index: 10; /* Asegura que esté por encima del reproductor */
+    opacity: 0; /* Oculto por defecto */
+    visibility: hidden; /* Oculto por defecto */
+    transition: opacity 0.3s ease, visibility 0.3s ease; /* Transición suave */
+}
+
+/* Estilos básicos para el spinner (puedes usar un CSS más complejo si tienes) */
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #0084ff; /* Color del spinner */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite; /* Animación de giro */
+    margin-bottom: 10px;
+}
+
+/* Animación de giro para el spinner */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Clase para mostrar el overlay de carga */
+#player-loading-overlay.is-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+
+
+/* --- ESTILOS PARA SECCIONES COLAPSABLES (MODO UDEMY CLIENTE FINAL) --- */
+
+/* Contenedor de cada bloque de sección (el acordeón individual) */
+.course-section-block {
+    background-color: #2c2f36; /* Fondo de la sección */
+    border-radius: 8px;
+    margin-bottom: 15px; /* Espacio entre secciones */
+    overflow: hidden; /* Importante para que las transiciones de altura funcionen */
+    border: 1px solid #363940;
+}
+
+/* Encabezado de cada sección (donde está el título y el botón de alternancia) */
+.section-header-client {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    cursor: pointer; /* Indica que es clickeable */
+    background-color: #363940; /* Fondo ligeramente diferente para el encabezado */
+    color: #e0e6f1;
+    transition: background-color 0.2s ease;
+}
+
+.section-header-client:hover {
+    background-color: #40444c; /* Oscurece al pasar el mouse */
+}
+
+/* Título de la sección */
+.section-title-client {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 600;
+    flex-grow: 1; /* Permite que el título ocupe el espacio disponible */
+}
+
+/* Botón de alternancia (la flecha) */
+.toggle-section-btn-client {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    color: #a0a7b1; /* Color de la flecha */
+    line-height: 0; /* Ajuste para que el icono quede perfecto */
+    transition: transform 0.3s ease; /* Animación de rotación */
+    margin-right: 10px; /* Espacio entre el botón y el título */
+}
+
+.toggle-section-btn-client i {
+    font-size: 1.2em; /* Tamaño del icono feather-icon */
+}
+
+/* Estado: Cuando la sección está colapsada, girar la flecha y ocultar la lista de lecciones */
+.course-section-block.is-collapsed-client .toggle-section-btn-client { /* ¡Cambiado aquí! */
+    transform: rotate(-90deg);
+}
+
+/* Oculta la lista de lecciones con una transición suave */
+.course-section-block .lesson-list {
+    max-height: 1000px; /* Un valor grande para la altura máxima cuando expandido */
+    opacity: 1;
+    transition: max-height 0.5s ease-out, opacity 0.5s ease;
+    padding: 10px 15px 15px 15px; /* Relleno cuando visible */
+}
+
+.course-section-block.is-collapsed-client .lesson-list { /* ¡Cambiado aquí! */
+    max-height: 0;
+    opacity: 0;
+    padding: 0 15px;
+    visibility: hidden;
+}
+
+/* Estilo para el mensaje de sección vacía en el cliente */
+.empty-lesson-client {
+    padding: 15px;
+    text-align: center;
+    color: #a0a7b1;
+    font-style: italic;
+    font-size: 0.9em;
+    background-color: #2b2e35;
+    margin: 0; /* Eliminar margen predeterminado de li/p */
+}
+
+/* Ajustes a los lesson-item existentes dentro de course-section-block */
+.course-section-block .lesson-item {
+    margin-bottom: 8px; /* Espacio entre lecciones */
+    background-color: #2b2e35; /* Fondo de cada lección */
+}
+.course-section-block .lesson-item:last-child {
+    margin-bottom: 0;
+}
+.course-section-block .lesson-item:hover {
+    background-color: #363940;
+}
+.course-section-block .lesson-item.active {
+    background-color: #0084ff;
+    color: #ffffff;
+}
+
+/* Asegurarse que el texto de leccion este visible en el estado activo */
+.course-section-block .lesson-item.active .lesson-title,
+.course-section-block .lesson-item.active .lesson-description-list {
+    color: #ffffff;
+}
+
+
+
+
+
+
+
+
+/* Estilos para la sección de FAQ del cliente */
+.faq-section-cliente {
+    padding: 20px;
+    margin-top: 20px;
+    background-color: #1a1c23;
+}
+.faq-section-cliente h2 {
+    color: #fff;
+    margin-bottom: 20px;
+}
+.faq-accordion .faq-item-cliente {
+    border-bottom: 1px solid #333;
+}
+.faq-question-cliente {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 15px 0;
+    text-align: left;
+    color: #ddd;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1em;
+}
+.faq-answer-cliente {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    color: #aaa;
+    padding: 0 15px;
+}
+.faq-answer-cliente p {
+    padding-bottom: 15px;
+}
+.faq-icon {
+    font-style: normal;
+    font-size: 1.5em;
+    transition: transform 0.3s;
+}
+.faq-item-cliente.active .faq-icon {
+    transform: rotate(45deg);
+}
+
+
+
+
+
+
+/* ================================================== */
+/* === ESTILOS PARA LA SECCIÓN DE FAQ DEL CLIENTE === */
+/* ================================================== */
+.faq-section-cliente {
+    background-color: #1a1b20;
+    padding: 20px 40px;
+}
+.faq-section-cliente h2 {
+    color: #e0e6f1;
+    border-bottom: 1px solid #30323a;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+.faq-item-cliente {
+    border-bottom: 1px solid #30323a;
+}
+.faq-question-cliente {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 20px 0;
+    text-align: left;
+    color: #d1d5db;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1em;
+    font-weight: 500;
+}
+.faq-icon {
+    font-style: normal;
+    font-size: 1.5em;
+    transition: transform 0.3s ease-in-out;
+    color: #0084ff;
+}
+.faq-item-cliente.active .faq-icon {
+    transform: rotate(45deg);
+}
+.faq-answer-cliente {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-in-out;
+    color: #a0a7b1;
+    font-size: 1em;
+    line-height: 1.6;
+}
+.faq-answer-cliente p {
+    padding: 0 10px 20px 10px;
+    margin: 0;
+}
+
+
+
+
+
+
+
+/* ====================================================== */
+/* === ESTRUCTURA PRINCIPAL DE 3 COLUMNAS === */
+/* ====================================================== */
+
+.course-layout-tres-columnas {
+    display: grid;
+    /* Define 3 columnas: Video (flexible), Capítulos (300px), Lecciones (350px) */
+    grid-template-columns: 1fr 300px 350px;
+    width: 100%;
+    height: 100vh;
+}
+
+
+
+
+
+/* ====================================================== */
+/* === ESTADO COLAPSADO (VERSIÓN CORREGIDA) === */
+/* ====================================================== */
+
+/* Cuando el layout principal tiene la clase 'chapters-collapsed'... */
+.course-layout-tres-columnas.chapters-collapsed {
+    /* ...la columna de capítulos se reduce a 60px */
+    grid-template-columns: 1fr 60px 350px;
+}
+
+.course-layout-tres-columnas.chapters-collapsed #chapters-title {
+    opacity: 0; /* Oculta el título */
+}
+
+.course-layout-tres-columnas.chapters-collapsed .chapters-section-cliente {
+    display: none; /* Oculta la lista de capítulos */
+}
+
+.course-layout-tres-columnas.chapters-collapsed .chapter-toggle-btn {
+    margin-right: 0;
+    transform: rotate(180deg); /* Gira el botón */
+}
+
+
+
+#player-container {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background-color: #000;
+    flex-shrink: 0;
+    position: relative;
+}
+
+#course-video-iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: none;
+}
+
+#lesson-description {
+    margin-top: 0px;
+}
+
+/* --- Columna 2: Capítulos (Centro) --- */
+.chapters-column {
+    background-color: #282a30;
+    border-left: 1px solid #30323a;
+    border-right: 1px solid #30323a;
+    display: flex;
+    flex-direction: column;
+    transition: min-width 0.3s ease-in-out, width 0.3s ease-in-out;
+    overflow: hidden;
+}
+
+.chapters-header {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #30323a;
+    flex-shrink: 0;
+}
+
+#chapters-title {
+    margin: 0;
+    font-size: 1.1em;
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: opacity 0.2s ease;
+}
+
+.chapter-toggle-btn {
+    background: #363940;
+    border: none;
+    color: #a0a7b1;
+    cursor: pointer;
+    border-radius: 5px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    margin-right: 10px;
+    transition: transform 0.3s ease;
+}
+
+.chapters-section-cliente {
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+/* --- Estado Colapsado para la Columna de Capítulos --- */
+.chapters-column.is-collapsed {
+    width: 60px;
+    min-width: 60px;
+}
+.chapters-column.is-collapsed #chapters-title {
+    opacity: 0;
+}
+.chapters-column.is-collapsed .chapters-section-cliente {
+    display: none;
+}
+.chapters-column.is-collapsed .chapter-toggle-btn {
+    margin-right: 0;
+    transform: rotate(180deg);
+}
+
+/* --- Columna 3: Lecciones (Derecha) --- */
+.course-content-column {
+    background-color: #2c2f36;
+    overflow-y: auto;
+}
+
+.course-sidebar {
+    padding: 20px;
+}
+
+/* ====================================================== */
+/* === ESTILOS GENÉRICOS PARA LAS LISTAS === */
+/* ====================================================== */
+.lesson-list, .chapters-list-cliente {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+}
+
+.lesson-item, .chapter-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    color: #a0a7b1;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    margin-bottom: 8px;
+}
+
+.lesson-item:hover, .chapter-link:hover {
+    background-color: #363940;
+    color: #ffffff;
+}
+
+.lesson-item.active, .chapter-link.active {
+    background-color: #0084ff;
+    color: #ffffff;
+}
+
+.lesson-thumbnail {
+    width: 90px;
+    height: 50px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-right: 15px;
+    background-color: #000;
+}
+
+.lesson-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.chapter-time-cliente {
+    font-weight: 500;
+    margin-right: 15px;
+    font-size: 0.9em;
+}
+
+
+
+
+/* --- ESTILOS PARA LECCIONES COMPLETADAS (VERSIÓN MEJORADA) --- */
+
+.lesson-item.watched {
+    /* Se elimina la opacidad y se cambia el color de fondo */
+    background-color: #3f5f40; 
+    transition: background-color 0.3s ease-in-out;
+}
+
+.lesson-item.watched .lesson-info {
+    position: relative;
+    padding-left: 28px; /* Crea espacio para el ícono de check */
+}
+
+.lesson-item.watched .lesson-info::before {
+    content: '✔';
+    color: #28a745; /* Un color verde para el check */
+    font-weight: bold;
+    position: absolute;
+    left: 8px; /* Posiciona el check a la izquierda */
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    line-height: 1;
+}
+
+/* La lección activa (azul) siempre tiene prioridad */
+.lesson-item.watched.active {
+    background-color: #0084ff; /* Mantiene el color azul de activo */
+}

@@ -1,0 +1,988 @@
+
+
+html, .editor-body { height: 100vh; overflow: hidden; margin: 0; }
+.editor-body { background-color: #1a1b20; color: #e0e6f1; display: flex; flex-direction: column; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+.editor-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background-color: #24262d; border-bottom: 1px solid #30323a; flex-shrink: 0; }
+.header-left, .header-right { display: flex; align-items: center; gap: 20px; }
+.btn-back { color: #a0a7b1; text-decoration: none; font-weight: 500; }
+.header-video-id { margin: 0; font-size: 1.1em; color: #a0a7b1; }
+.btn-action { padding: 8px 16px; border-radius: 6px; border: none; font-weight: 500; font-size: 14px; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.btn-view { background-color: #ffc107; color: #1e2025; }
+.btn-save { background-color: #0084ff; color: #ffffff; }
+/* Este es el código nuevo que debes AÑADIR */
+
+.btn-save.success {
+    /* * Curso: Este es un selector compuesto. Se aplica SOLO a los elementos
+     * que tienen AMBAS clases: 'btn-save' Y 'success'.
+     * Esto nos asegura que solo nuestro botón de guardar se vea afectado.
+     * Le asignamos un color de fondo verde que universalmente significa "éxito".
+    */
+    background-color: #28a745; 
+}
+
+.editor-container {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: minmax(0, 1fr);
+    flex-grow: 1;
+    overflow: hidden;/* Se elimina 'overflow: hidden' para permitir el scroll de los hijos */
+}
+.player-column { padding: 20px; display: flex; justify-content: center; align-items: flex-start; }
+
+
+/* --- ESTILOS PARA MENÚ DESLIZANTE (VERSIÓN CORREGIDA Y FINAL) --- */
+
+/* El contenedor principal es el ancla de posicionamiento */
+.settings-column {
+    position: relative; /* Mantiene el menú anclado */
+    display: flex;
+    background-color: #24262d;
+    /* Se elimina 'overflow: hidden' para no cortar el scroll */
+}
+
+/* El formulario de ajustes ocupa todo el espacio 2da columna*/
+#configForm {
+    width: 334px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid #30323a;
+    margin-right: 86px; /* <-- ESTA ES LA LÍNEA MÁGICA */
+}
+
+.settings-content {
+    flex-grow: 1;
+    overflow-y: auto; /* Esta es la única parte que debe tener el scroll */
+    padding: 25px;
+}
+
+
+
+/* La barra de navegación ahora "flota" a la derecha */
+.settings-navbar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 86px; /* Ancho inicial (colapsado) */
+    background-color: #24262d;
+    padding: 15px;
+    border-left: 1px solid #30323a;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    transition: width 0.35s ease-in-out;
+}
+
+/* Cuando el menú se expande, solo cambiamos su ancho */
+.settings-navbar.menu-expanded {
+    width: 220px; /* Ancho final (expandido) */
+}
+
+/* El texto de los enlaces: Oculto y sin ocupar espacio por defecto */
+.nav-text {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    transition: opacity 0.2s ease, width 0.2s ease;
+    white-space: nowrap;
+    margin-left: 0;
+}
+
+/* El texto se hace visible y ocupa espacio cuando el menú está expandido */
+.settings-navbar.menu-expanded .nav-text {
+    opacity: 1;
+    width: auto;
+    margin-left: 15px; /* Le damos su espacio al expandirse */
+}
+
+/* Los enlaces de las pestañas */
+.tab-link {
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 5px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centra el ícono cuando está colapsado */
+    background: none;
+    border: none;
+    color: #a0a7b1;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+/* El ícono dentro del enlace no debe encogerse */
+.tab-link > i {
+    flex-shrink: 0;
+}
+
+/* Cuando el menú se expande, el contenido se alinea a la izquierda */
+.settings-navbar.menu-expanded .tab-link {
+    justify-content: flex-start;
+}
+
+/* El resto de los estilos se mantienen */
+.navbar-header { margin-bottom: 15px; }
+
+.btn-toggle-navbar {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    line-height: 0;
+    border-radius: 4px;
+    color: #a0a7b1;
+    transition: transform 0.3s ease;
+}
+
+.settings-navbar.menu-expanded .btn-toggle-navbar {
+    transform: rotate(180deg);
+}
+
+.tab-link:hover {
+    background-color: #363940;
+    color: #fff;
+}
+
+.tab-link.active {
+    color: #fff;
+    background-color: #0084ff;
+}
+
+
+
+#player-container { position: relative; width: 100%; max-width: 900px; margin: 0 auto; aspect-ratio: 16/9; background-color: #000; overflow: hidden; }
+/* --- AÑADE ESTA NUEVA REGLA --- */
+/* Por defecto, el reproductor de YouTube estará oculto */
+#youtube-player-preview {
+    display: none;
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+}
+/* REGLA 1: El contenedor principal vuelve a usar Flexbox para centrar todo. */
+.preview-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-size: cover;
+    background-position: center;
+    z-index: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+/* Reemplázalo con este bloque */
+#player-container-overlay .preview-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    /* --- INICIO DE LÍNEAS AÑADIDAS --- */
+    /* CURSO: Con estas 3 líneas, le ordenamos a este contenedor que centre
+       horizontal (justify-content) y verticalmente (align-items)
+       todo lo que tenga adentro, en este caso, el botón de play. */
+    /* --- FIN DE LÍNEAS AÑADIDAS --- */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.preview-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.custom-controls-bar { z-index: 4; }
+
+.setting-section { margin-bottom: 25px; border-bottom: 1px solid #30323a; padding-bottom: 25px; }
+.setting-section:last-child { border-bottom: none; margin-bottom: 0; }
+.section-title { margin: 0 0 20px 0; font-size: 0.9em; color: #e0e6f1; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.setting-section .section-content { display: flex; flex-direction: column; gap: 15px; }
+.form-group, .form-group-checkbox { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0; }
+.form-group label, .form-group-checkbox .switch-label { margin-bottom: 0; font-weight: 500; color: #a0a7b1; }
+.form-group input[type="text"], .form-group select { width: 55%; padding: 8px 10px; background-color: #1e2025; border: 1px solid #4a4e56; border-radius: 6px; color: #e0e0e0; font-size: 14px; }
+.form-group input[type="color"] { width: 90px; height: 32px; padding: 2px; border: 1px solid #4a4e56; border-radius: 6px; background-color: #1e2025; }
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+.switch input { display: none; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #363940; transition: .4s; border-radius: 24px; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: #0084ff; }
+input:checked + .slider:before { transform: translateX(20px); }
+.setting-section .section-content[data-columns="2"] { display: grid; grid-template-columns: 1fr 1fr; gap: 15px 20px; }
+.setting-section .section-content[data-columns="2"] .form-group-checkbox { justify-content: flex-start; gap: 10px; }
+.form-group-vertical { display: flex; flex-direction: column; gap: 10px; }
+#thumbnail-preview { max-width: 100%; border-radius: 8px; border: 1px solid #4a4e56; margin-top: 5px; }
+.form-group-vertical small { color: #767d8a; }
+
+.dropdown-container { position: relative; display: inline-block; }
+.btn-options { background-color: #363940; color: #d1d5db; padding: 8px; }
+.dropdown-menu { display: none; position: absolute; top: 100%; right: 0; margin-top: 8px; background-color: #2c2f37; min-width: 200px; border: 1px solid #4a4e56; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.3); z-index: 1000; padding: 8px 0; }
+.dropdown-container.active .dropdown-menu { display: block; }
+.dropdown-item { display: block; padding: 10px 20px; color: #d1d5db; text-decoration: none; font-size: 14px; }
+.dropdown-item:hover { background-color: #363940; }
+.dropdown-item.danger { color: #ff4d4d; }
+.dropdown-item.danger:hover { background-color: #ff4d4d; color: #ffffff; }
+.dropdown-divider { height: 1px; margin: 8px 0; background-color: #4a4e56; }
+
+
+/* Oculta la imagen de fondo cuando el video se reproduce, pero deja la capa visible */
+.preview-overlay.playing {
+    background-image: none !important;
+}
+
+
+/* --- Estilos para la Vista Previa de Miniatura --- */
+.form-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+#thumbnail-preview {
+    max-width: 100%;
+    border-radius: 8px;
+    border: 1px solid #4a4e56;
+    margin-top: 5px;
+}
+
+/* Este es el código que debes AÑADIR */
+
+.btn-delete-thumb {
+    background-color: #e74c3c; /* Curso: Esta es la propiedad clave. Le asigna un color de fondo rojo al botón para que sea muy visible. */
+    color: #ffffff;           /* Curso: Esto cambia el color del texto a blanco, asegurando un buen contraste sobre el fondo rojo. */
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 12px;         /* Curso: Aumentamos el relleno (padding) para que el fondo rojo sea más grande que el texto, dándole forma de botón. */
+    border-radius: 5px;        /* Curso: Añadimos bordes redondeados para que el diseño coincida con otros botones de la interfaz. */
+    transition: background-color 0.2s ease; /* Curso: Agregamos una transición suave para que el cambio de color al pasar el mouse no sea brusco. */
+}
+.btn-delete-thumb:hover {
+    background-color: #c0392b; /* Curso: Esta es la regla ':hover'. Sirve para cambiar el estilo cuando el usuario pasa el mouse sobre el elemento. Aquí oscurecemos un poco el rojo para dar una respuesta visual de que el botón es interactivo. */
+    text-decoration: none; /* Quitamos el subrayado que ya no es necesario */
+}
+
+/* =================================================================== */
+/* --- NUEVOS ESTILOS PARA LA VISTA PREVIA DEL REPRODUCTOR --- */
+/* =================================================================== */
+
+/* CURSO (Objetivo 1 y 2): Estilos para el botón de reproducción grande.
+ * Lo convertimos en un círculo y lo centramos.
+*/
+/* Añade este nuevo bloque */
+
+#player-container-overlay .preview-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+/* REGLA 2: El botón de play ya no necesita posicionamiento especial. */
+#big-play-button {
+    width: 90px;
+    height: 90px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+#player-container-overlay #big-play-button {
+    width: 90px;
+    height: 90px;
+    background-color: var(--main-color, #0084ff);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+#player-container-overlay #big-play-button:hover {
+    transform: scale(1.1); /* Al pasar el mouse, el botón se agranda un poco. */
+}
+
+
+/* CURSO (Objetivo 3, Parte A): Estilos para el icono ">" (SVG) dentro del botón.
+ * Lo seleccionamos y le aplicamos el color de los controles.
+*/
+#player-container-overlay #big-play-button svg {
+    width: 85%; /* Ajustamos el tamaño del ícono para que no sea tan grande como el círculo. */
+    height: 85%;
+    margin-left: 5%; /* Pequeño ajuste para que el triángulo ">" se vea perfectamente centrado a la vista. */
+}
+
+#player-container-overlay #big-play-button svg polygon {
+    fill: none; /* Sin relleno */
+    stroke: var(--controls-color, #ffffff); /* Color del borde */
+    stroke-width: 8; /* Grosor del borde */
+}
+
+
+/* CURSO (Objetivo 3, Parte B): Estilos para los iconos de la barra de controles inferior.
+ * Aplicamos el color de los controles a todos los botones de la barra.
+*/
+#player-container-overlay .custom-controls-bar .control-button {
+    /* Le decimos al botón que su "color" de texto y de icono es la variable.
+       El SVG heredará este color y se pintará correctamente. */
+    color: var(--controls-color, #ffffff);
+}
+/* Añade este nuevo bloque al final de la sección de nuevos estilos */
+
+
+/* =================================================================== */
+/* --- ESTILOS DE LA BARRA DE CONTROLES (IMPORTADOS DE PLAYER.CSS) --- */
+/* =================================================================== */
+
+/* CURSO: Estos son los estilos copiados de player.css, pero hemos añadido
+   #player-container-overlay al principio de cada regla. Esto se llama
+   "aumentar la especificidad" y nos asegura que estos estilos SOLO se
+   apliquen a la barra de controles de nuestra vista previa y no afecten
+   a ningún otro elemento de la página del editor. */
+
+   /* Añade este bloque de código dentro de la sección de estilos importados */
+
+/* CURSO: Con esta regla, forzamos a que los botones de control (.control-button)
+   dentro de nuestra vista previa sean transparentes. Usamos !important para
+   darle máxima prioridad y asegurarnos de que anule cualquier estilo por
+   defecto que esté aplicando el navegador. */
+#player-container-overlay .control-button {
+    background: transparent !important;
+    border: none !important;
+}
+
+#player-container-overlay .custom-controls-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 4;
+    background-image: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    opacity: 1; /* Forzamos la visibilidad en el editor */
+    visibility: visible;
+}
+
+#player-container-overlay .progress-bar-container {
+    height: 15px;
+    margin: 0 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+/* CURSO: Estilo para el fondo de la barra de progreso en la VISTA PREVIA. */
+#player-container-overlay .progress-bar {
+    width: 100%;
+    height: 4px;
+    /* CURSO: La clave está aquí. Le decimos que su color de fondo debe ser
+       el valor de la variable --bars-bg-color. Esta variable es la que
+       nuestro JavaScript actualiza cuando cambias el selector "Fondo de Barras".
+       SI la variable no existiera, ENTONCES usaría el color por defecto #4a4e56 (un gris). */
+    background-color: #4a4e56;
+    border-radius: 2px;
+    position: relative;
+}
+
+#player-container-overlay .played-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: var(--bars-bg-color, #0084ff);
+    border-radius: 2px;
+}
+
+#player-container-overlay .progress-thumb {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    background-color: var(--main-color, #0084ff);
+    border-radius: 50%;
+}
+
+#player-container-overlay .bottom-controls {
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+}
+
+#player-container-overlay .controls-left,
+#player-container-overlay .controls-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#player-container-overlay .time-display {
+    color: var(--controls-color, #ffffff);
+    font-size: 14px;
+    margin-left: 8px;
+    user-select: none;
+}
+/* AÑADE este bloque de código en su lugar */
+
+/* AÑADE esta nueva regla para colorear los iconos Feather */
+#player-container-overlay .control-button .feather {
+    color: var(--controls-color, #151313);
+}
+
+
+
+/* Este es el nuevo bloque de código que debes AÑADIR */
+
+/* =================================================================== */
+/* --- ESTILOS PARA LA BARRA DE VOLUMEN --- */
+/* =================================================================== */
+
+/* CURSO: Definimos el contenedor de la barra de volumen */
+#player-container-overlay .volume-slider-container {
+    display: flex;
+    align-items: center;
+    width: 80px; /* Le damos un ancho fijo a la barra de volumen */
+    height: 40px; /* La misma altura que los botones para que esté alineada */
+    padding: 0 5px; /* Pequeño espaciado interno */
+}
+
+/* CURSO: Estilo para el fondo de la barra de volumen en la VISTA PREVIA. */
+#player-container-overlay .volume-slider {
+    width: 100%;
+    height: 4px;
+    /* CURSO: Al igual que la barra de progreso, conectamos su fondo
+       a la misma variable --bars-bg-color. Así, un solo selector de color
+       controla ambos elementos, manteniendo la consistencia del diseño. */
+    background-color: #4a4e56; /* Color gris fijo para la vista previa */
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+}
+
+/* CURSO: Estilos para el nivel de la barra de volumen.
+   Usamos la variable --main-color para conectarla al selector "Color Principal". */
+#player-container-overlay .volume-level {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: var(--bars-bg-color, #0084ff);
+    border-radius: 2px;
+    width: 75%; /* Le damos un ancho por defecto para poder verla en el editor */
+}
+/* CURSO: Estilo para el fondo de la barra de progreso en el reproductor PÚBLICO. */
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    /* CURSO: Usamos exactamente la misma lógica. El archivo index.php
+       inyecta el valor del color desde la base de datos en la variable --bars-bg-color,
+       y este CSS simplemente la consume para pintar el fondo. */
+    background-color: var(--bars-bg-color, #4a4e56);
+    border-radius: 2px;
+    position: relative;
+}
+/* CURSO: Añadimos los estilos para la barra de volumen en el reproductor PÚBLICO. */
+.volume-slider-container {
+    display: flex;
+    align-items: center;
+    width: 80px;
+    height: 40px;
+    padding: 0 5px;
+}
+
+.volume-slider {
+    width: 100%;
+    height: 4px;
+    /* CURSO: Y aquí conectamos el fondo de la barra de volumen pública
+       a la variable --bars-bg-color, completando la misión. */
+    background-color: var(--bars-bg-color, #4a4e56);
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+}
+
+.volume-level {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    /* CURSO: El nivel de volumen (la parte coloreada) sí usa
+       la variable --main-color, controlada por "Color Principal". */
+    background-color: var(--main-color, #0084ff);
+    border-radius: 2px;
+}
+
+/* Añade este nuevo bloque de código */
+
+/* =================================================================== */
+/* --- ESTILOS PARA EL TEXTO DE PREVISUALIZACIÓN --- */
+/* =================================================================== */
+/* REGLA 3: El texto vuelve a su flujo normal, con un margen para separarse del botón. */
+.preview-overlay-text {
+    color: white;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+    margin-top: 15px; /* Margen para que no esté pegado al botón */
+}
+#player-container-overlay .preview-overlay-text {
+    color: var(--controls-color, #ffffff);
+    text-transform: uppercase;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    margin-top: 15px; /* Margen para que no esté pegado al botón */
+}
+/* --- Estilos para el contenedor del texto en la vista previa --- */
+#player-container-overlay .preview-content-wrapper.text-bg-active {
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px 30px;
+    border-radius: 10px;
+    gap: 15px;
+}
+
+#player-container-overlay .preview-content-wrapper .preview-overlay-text {
+    margin-top: 0;
+}
+
+
+
+
+
+/* ------------------------------------------------------------------------------------------------------
+                        SEO
+----------------------------------------------------------------------------------------------------- */
+/* --- ESTILOS PARA CONTADORES DE CARACTERES SEO --- */
+.label-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px; /* Espacio para que no esté pegado al input */
+}
+
+.char-counter {
+    font-size: 0.85em;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: #363940;
+    color: #a0a7b1;
+}
+
+.char-counter.good { color: #28a745; } /* Verde */
+.char-counter.warning { color: #ffc107; } /* Amarillo */
+.char-counter.error { color: #e74c3c; } /* Rojo */
+
+
+
+
+
+/* --- NUEVO: Estilos para la notificación personalizada --- */
+#custom-notification {
+    display: none; /* Oculto por defecto */
+    position: fixed; /* Fijo en la pantalla */
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%); /* Centrar horizontalmente */
+    background-color: #28a745; /* Color de éxito, puedes ajustarlo */
+    color: #ffffff;
+    padding: 12px 25px;
+    border-radius: 8px;
+    z-index: 9999; /* Asegura que esté por encima de todo */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    font-size: 15px;
+    font-weight: 500;
+    opacity: 0; /* Para la animación de aparición/desaparición */
+    transition: opacity 0.3s ease-in-out; /* Transición suave */
+}
+
+#custom-notification.show {
+    opacity: 1; /* Mostrar */
+}
+
+#custom-notification.error {
+    background-color: #e74c3c; /* Color para errores */
+}
+
+
+
+/* --- CURSO: ESTILOS PARA LAS ETIQUETAS DE PALABRAS CLAVE --- */
+.keywords-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background-color: #1e2025;
+    border: 1px solid #4a4e56;
+    border-radius: 6px;
+}
+.keyword-tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #0084ff;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+}
+.keyword-tag .remove-tag {
+    cursor: pointer;
+    font-style: normal;
+    font-weight: bold;
+    line-height: 1;
+}
+#keywords-input {
+    flex-grow: 1;
+    border: none;
+    background: none;
+    outline: none;
+    color: #e0e0e0;
+    padding: 5px;
+    min-width: 150px;
+}
+
+
+/* --- ESTILOS PARA EL POP-UP DE INSERTAR VIDEO --- */
+.embed-section {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #4a4e56;
+}
+.embed-section:first-of-type {
+    margin-top: 15px;
+    padding-top: 0;
+    border-top: none;
+}
+.embed-section h4 {
+    margin: 0 0 5px 0;
+    color: #e0e6f1;
+}
+.embed-description {
+    font-size: 0.9em;
+    color: #a0a7b1;
+    margin: 0 0 15px 0;
+}
+.code-box {
+    position: relative;
+    background-color: #1e2025;
+    border: 1px solid #4a4e56;
+    border-radius: 6px;
+    padding: 15px;
+}
+.code-box pre {
+    margin: 0;
+    white-space: pre-wrap; /* El código se ajustará si es muy largo */
+    word-wrap: break-word;
+}
+.code-box code {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 14px;
+    color: #d1d5db;
+}
+.copy-code-btn {
+    position: absolute;
+    top: 40px;
+    right: 50px;
+    background-color: #363940;
+    color: #d1d5db;
+    border: 1px solid #4a4e56;
+    border-radius: 5px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 13px;
+}
+.copy-code-btn:hover {
+    background-color: #4a4e56;
+}
+.size-inputs {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+.size-inputs label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #a0a7b1;
+}
+.size-inputs input[type="number"] {
+    width: 80px;
+    padding: 6px;
+    background-color: #1e2025;
+    border: 1px solid #4a4e56;
+    border-radius: 5px;
+    color: #e0e0e0;
+}
+
+
+
+/* --- ESTILOS PARA LA ADVERTENCIA EN POP-UP --- */
+.embed-warning {
+    background-color: rgba(255, 193, 7, 0.1); /* Fondo amarillo muy transparente */
+    border-left: 4px solid #ffc107; /* Borde izquierdo amarillo */
+    padding: 10px 15px;
+    margin: 20px 0;
+    border-radius: 4px;
+}
+.embed-warning p {
+    margin: 0;
+    color: #ffc107; /* Texto amarillo */
+    font-size: 0.9em;
+}
+.embed-warning p strong {
+    color: #ffffff; /* Resaltamos el "Importante" en blanco */
+}
+
+
+/* --- ESTILOS PARA EL POP-UP DE COMPARTIR --- */
+.share-section {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+#share-link-input {
+    flex-grow: 1;
+    padding: 10px;
+    background-color: #1e2025;
+    border: 1px solid #4a4e56;
+    border-radius: 6px;
+    color: #d1d5db;
+    font-size: 14px;
+}
+
+
+
+
+
+
+/* ================================================== */
+/* === ESTILOS PARA EL EDITOR DE FAQ === */
+/* ================================================== */
+
+#faq-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.faq-item {
+    background-color: #2c2f3b;
+    border: 1px solid #404555;
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.faq-content {
+    flex-grow: 1;
+    margin-right: 15px;
+}
+
+.faq-content strong {
+    color: #00aaff;
+}
+
+.faq-question, .faq-answer {
+    display: inline;
+    color: #d1d5db;
+}
+
+.faq-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-edit-faq {
+    background-color: #4a5568;
+    color: white;
+}
+
+.btn-delete-faq {
+    background-color: #e53e3e;
+    color: white;
+}
+
+/* Estilos para el Modal de FAQ */
+#faq-modal .modal-content {
+    width: 90%;
+    max-width: 500px;
+}
+
+#faq-form input[type="text"],
+#faq-form textarea {
+    width: 100%;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* ================================================== */
+/* === ESTILOS PARA EL EDITOR DE CAPÍTULOS === */
+/* ================================================== */
+
+.form-control-editor {
+    padding: 8px 10px;
+    background-color: #1e2025;
+    border: 1px solid #4a4e56;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 14px;
+}
+
+#chapters-list {
+    margin-bottom: 20px;
+    border-top: 1px solid #30323a;
+}
+
+.chapter-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 10px;
+    border-bottom: 1px solid #30323a;
+    gap: 15px;
+}
+
+.chapter-time {
+    font-weight: 500;
+    color: #a0a7b1;
+    background-color: #24262d;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.chapter-title {
+    flex-grow: 1;
+    color: #e0e6f1;
+}
+
+.btn-delete-chapter {
+    background-color: transparent;
+    color: #e53e3e;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 0 10px;
+    line-height: 1;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.btn-delete-chapter:hover {
+    opacity: 1;
+}
+
+
+/* Ajustes para el formulario de añadir capítulos */
+#add-chapter-form {
+    margin-top: 20px;
+}
+.chapter-inputs-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+#chapter-tiempo {
+    width: 80px;
+}
+#chapter-titulo {
+    flex-grow: 1;
+}
+#add-chapter-btn {
+    width: 100%;
+}
+
+
+
+
+
+
+/* --- INICIO: ESTILOS PARA LA EDICIÓN EN LÍNEA DE CAPÍTULOS (VERSIÓN FINAL) --- */
+
+.chapter-item.is-editing {
+    background-color: #363940; /* Resalta la fila que se está editando */
+    display: flex; /* <-- MUY IMPORTANTE: activa el modo flexible */
+    align-items: center;
+    gap: 10px; /* Espacio entre los elementos */
+}
+
+/* Estilo para los campos de texto de tiempo y título */
+.chapter-item.is-editing .chapter-input-time,
+.chapter-item.is-editing .chapter-input-title {
+    padding: 6px 8px;
+    background-color: #1e2025;
+    border: 1px solid #4a4e56;
+    border-radius: 4px;
+    color: #e0e0e0;
+    font-size: 14px;
+}
+
+.chapter-item.is-editing .chapter-input-time {
+    width: 70px; /* Ancho fijo para el tiempo */
+    flex-shrink: 0; /* Evita que este campo se encoja */
+}
+
+.chapter-item.is-editing .chapter-input-title {
+    flex-grow: 1; /* <-- LA CLAVE: El título ocupa todo el espacio sobrante */
+    min-width: 100px; /* Un ancho mínimo para que no desaparezca */
+}
+
+/* Estilo para los nuevos botones de Guardar y Cancelar */
+.chapter-item.is-editing .btn-save-chapter,
+.chapter-item.is-editing .btn-cancel-chapter {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 0 8px;
+    line-height: 1;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0; /* Evita que los botones se encojan */
+}
+
+.chapter-item.is-editing .btn-save-chapter {
+    color: #28a745; /* Verde para guardar */
+}
+.chapter-item.is-editing .btn-save-chapter:hover {
+    background-color: rgba(40, 167, 69, 0.2);
+}
+
+.chapter-item.is-editing .btn-cancel-chapter {
+    color: #e74c3c; /* Rojo para cancelar/eliminar */
+}
+.chapter-item.is-editing .btn-cancel-chapter:hover {
+    background-color: rgba(231, 76, 60, 0.2);
+}
+
+/* --- FIN: ESTILOS PARA LA EDICIÓN EN LÍNEA DE CAPÍTULOS --- */

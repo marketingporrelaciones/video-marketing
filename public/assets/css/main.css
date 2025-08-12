@@ -1,0 +1,700 @@
+/* /video/assets/css/main.css */
+
+/* --- RESET BÁSICO Y ESTILOS GENERALES --- */
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #1a1b20;
+    color: #e0e6f1;
+    font-size: 16px;
+}
+
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+
+/* --- ESTRUCTURA PRINCIPAL DE LA APLICACIÓN --- */
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.app-sidebar {
+    width: 240px;
+    min-width: 240px;
+    background-color: #24262d;
+    border-right: 1px solid #30323a;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+}
+
+.sidebar-header {
+    padding: 10px 0 25px 0;
+    text-align: center;
+}
+
+.sidebar-title {
+    margin: 0;
+    font-size: 1.5em;
+    color: #ffffff;
+}
+
+.sidebar-nav a.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 15px;
+    border-radius: 6px;
+    color: #a0a7b1;
+    text-decoration: none;
+    margin-bottom: 5px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    font-weight: 500;
+}
+
+.sidebar-nav a.nav-link:hover {
+    background-color: #30323a;
+    color: #ffffff;
+}
+
+.sidebar-nav a.nav-link.active {
+    background-color: #0084ff;
+    color: #ffffff;
+}
+
+.app-main-content {
+    flex-grow: 1;
+    padding: 30px 40px;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #30323a;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 1.8em;
+}
+
+/* --- ELEMENTOS COMUNES --- */
+.btn-primary {
+    background: #0084ff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all .3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 132, 255, .25);
+}
+
+/* --- CUADRÍCULA DE REPRODUCTORES --- */
+.player-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.player-card {
+    background-color: #2c2f36;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #40444c;
+    display: flex;
+    flex-direction: column;
+    transition: all .3s ease;
+}
+.player-card:hover {
+    transform: translateY(-5px);
+    border-color: #555a64;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.card-thumbnail {
+    position: relative;
+    cursor: pointer;
+}
+.card-thumbnail img {
+    width: 100%;
+    display: block;
+    aspect-ratio: 16/9;
+    background-color: #202225;
+}
+.play-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+.card-thumbnail:hover .play-overlay {
+    opacity: 1;
+}
+.play-overlay i {
+    width: 50px;
+    height: 50px;
+    color: #fff;
+}
+
+.card-body { padding: 15px; flex-grow: 1; }
+.card-title {
+    margin: 0 0 5px 0;
+    font-size: 1.1em;
+    color: #e0e0e0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.card-video-id { margin: 0; font-size: 0.8em; color: #8a929b; }
+
+.card-footer {
+    padding: 0 15px 15px 15px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+.card-action-btn {
+    padding: 8px 16px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    transition: background-color .2s ease;
+    border: none;
+    cursor: pointer;
+}
+.edit-btn { background-color: #363940; color: #d1d5db; }
+.delete-btn { background-color: #4a2b30; color: #f08080; }
+
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px;
+    background-color: #24262d;
+    border-radius: 8px;
+}
+
+/* --- VENTANA MODAL --- */
+.modal-overlay {
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.modal-content {
+    background-color: #2c2f36;
+    padding: 30px 40px;
+    border-radius: 12px;
+    border: 1px solid #40444c;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.close-modal-btn {
+    position: absolute;
+    top: 10px; right: 15px;
+    color: #a0a7b1;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color .2s ease;
+}
+.close-modal-btn:hover { color: #fff; }
+
+.modal-content h2 { margin-top: 0; }
+.modal-content p { color: #a0a7b1; margin: 0 0 25px; }
+.modal-content label { display: block; margin-bottom: 8px; font-weight: 500; }
+.modal-content input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 25px;
+    background-color: #1e2025;
+    border: 1px solid #4a4e56;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 15px;
+}
+.modal-content button[type="submit"] { width: 100%; }
+.clone-btn { 
+    background-color: #2b4a3f; 
+    color: #80f0c9; 
+}
+
+
+/* --- ESTILOS PARA LA PÁGINA DE GESTIÓN DE LEADS --- */
+
+/* Contenedor principal para la tabla y futuros filtros */
+.leads-container {
+    background-color: #24262d;
+    border-radius: 8px;
+    border: 1px solid #30323a;
+    overflow: hidden; /* Para que los bordes redondeados se apliquen a la tabla */
+}
+
+/* Un wrapper para la tabla, útil para hacerla scrollable en móvil si es necesario */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse; /* Une los bordes de las celdas */
+    color: #e0e6f1;
+}
+
+/* Estilo para todas las celdas (encabezados y datos) */
+table th,
+table td {
+    padding: 15px 20px;
+    text-align: left;
+    border-bottom: 1px solid #30323a;
+}
+
+/* Estilo específico para los encabezados de la tabla */
+table thead th {
+    background-color: #2c2f36;
+    font-size: 0.9em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #a0a7b1;
+}
+
+/* Estilo para las filas del cuerpo de la tabla */
+table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+/* Efecto "cebra" para mejorar la legibilidad, coloreando las filas pares */
+table tbody tr:nth-child(even) {
+    background-color: #282a30;
+}
+
+/* Efecto hover para resaltar la fila sobre la que está el cursor */
+table tbody tr:hover {
+    background-color: #363940;
+}
+
+/* Alineamos el contenedor de los botones de acción (Exportar) a la derecha */
+.page-header .actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Estilo para la celda de "No se han encontrado leads" */
+.table-wrapper .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #a0a7b1;
+}
+
+
+/* --- CURSO: ESTILOS PARA EL EDITOR DE CURSOS --- */
+
+.course-editor-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.video-list-container h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #30323a;
+    padding-bottom: 10px;
+}
+
+.video-list {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+    background-color: #1e2025;
+    border-radius: 8px;
+    min-height: 400px;
+    height: 60vh;
+    overflow-y: auto;
+}
+
+.video-list li {
+    padding: 12px 15px;
+    background-color: #2b2e35;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    cursor: grab;
+    user-select: none;
+    transition: background-color 0.2s;
+}
+
+.video-list li:last-child {
+    margin-bottom: 0;
+}
+
+/* --- CURSO: ESTILO PARA EL DRAG & DROP --- */
+/* Estilo para el "fantasma" de Sortable.js */
+.sortable-ghost {
+    opacity: 0.4;
+    background-color: #0084ff; /* Un color distintivo para el fantasma */
+    border: 1px dashed #0084ff;
+    box-sizing: border-box;
+}
+
+
+
+/* --- ESTILOS PARA EL EDITOR DE CURSOS CON SECCIONES --- */
+.sections-container {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.section-block {
+    background-color: #24262d;
+    border: 1px solid #30323a;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #383b42;
+}
+
+.section-header h3 {
+    margin: 0;
+    font-size: 1.3em;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+.lesson-list-editor {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.lesson-list-editor li {
+    background-color: #2c2f36;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.lesson-list-editor li:last-child {
+    margin-bottom: 0;
+}
+
+.lesson-list-editor .empty-lesson {
+    text-align: center;
+    color: #a0a7b1;
+    padding: 20px;
+    background-color: transparent;
+}
+
+
+
+
+/* --- ESTILOS PARA ELIMINAR SECCIONES --- */
+
+.btn-danger {
+    background-color: #e74c3c;
+    color: white;
+}
+.btn-danger:hover {
+    background-color: #c0392b;
+}
+
+
+
+
+
+
+/* --- ESTILOS PARA REORDENAR SECCIONES --- */
+.section-header {
+    cursor: grab; /* Indica que esta área se puede arrastrar */
+}
+.sortable-ghost-section {
+    opacity: 0.5;
+    background: #0084ff;
+}
+
+
+
+
+
+
+
+
+/* --- ESTILOS PARA COMPRIMIR/EXPANDIR SECCIONES --- */
+.section-header {
+    display: flex; /* Aseguramos que sea flexbox para alinear la flecha */
+    align-items: center;
+    gap: 15px; /* Espacio entre la flecha y el título */
+}
+
+.toggle-section-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    color: #a0a7b1;
+    line-height: 0; /* Ajuste para que el icono quede perfecto */
+    transition: transform 0.3s ease;
+}
+
+.section-block.is-collapsed .toggle-section-btn {
+    transform: rotate(-90deg); /* Gira la flecha cuando está comprimido */
+}
+
+.section-block.is-collapsed .player-grid {
+    display: none; /* Oculta la cuadrícula de videos */
+}
+
+
+
+.modal-content textarea {
+    width: 100%;
+    resize: vertical; /* Opcional: permite al usuario cambiar la altura, pero no el ancho */
+}
+
+
+
+
+/* ================================================== */
+/* === ESTILOS PARA EL EDITOR DE FAQ === */
+/* ================================================== */
+
+#faq-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.faq-item {
+    background-color: #2c2f3b;
+    border: 1px solid #404555;
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.faq-content {
+    flex-grow: 1;
+}
+
+.faq-content strong {
+    color: #00aaff;
+    font-size: 0.9em;
+}
+
+.faq-question, .faq-answer {
+    display: block;
+    color: #d1d5db;
+    margin-left: 20px;
+}
+
+.faq-actions {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+.btn-edit-faq {
+    background-color: #4a5568;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-delete-faq {
+    background-color: #e53e3e;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* El modal ya tiene estilos en main.css, solo ajustamos el textarea */
+#faq-form textarea {
+    width: 100%;
+    padding: 12px;
+    background-color: #1e2025;
+    border: 1px solid #4a4e56;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 15px;
+    resize: vertical;
+}
+
+
+
+
+
+
+/*
+=================================================
+ ESTILOS PARA EL MODAL DE EDICIÓN DE CURSO
+=================================================
+*/
+.modal-container {
+    display: none; /* Oculto por defecto, lo controlaremos con JS */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(18, 24, 38, 0.6); /* Un fondo oscuro semitransparente */
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background-color: #2c2c38; /* Color oscuro del fondo del modal */
+    color: #f1f1f1;
+    margin: 10% auto;
+    padding: 25px 30px;
+    border: 1px solid #444;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 550px; /* Un ancho máximo para que no sea gigante en pantallas grandes */
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    position: relative;
+    animation: slideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.close-modal {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+}
+
+.close-modal:hover,
+.close-modal:focus {
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #ffffff;
+}
+
+.modal-content p {
+    font-size: 14px;
+    color: #b0b0b0;
+    margin-bottom: 25px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600; /* Un poco más de grosor */
+    font-size: 14px;
+    color: #c0c0c0;
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    background-color: #1e1e28;
+    border: 1px solid #4a4a5a; /* Un borde un poco más visible */
+    border-radius: 8px;
+    color: #f1f1f1;
+    font-size: 14px;
+    box-sizing: border-box; /* Crucial para que el padding no desborde el elemento */
+    transition: all 0.2s ease-in-out;
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #0d6efd; /* El azul principal de tu app */
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);
+}
+
+/* El botón de submit del modal */
+#editCourseForm .btn-primary {
+    width: 100%;
+    padding: 12px;
+    background-color: #0d6efd;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#editCourseForm .btn-primary:hover {
+    background-color: #0b5ed7; /* Un azul un poco más oscuro al pasar el mouse */
+}

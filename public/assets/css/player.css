@@ -1,0 +1,572 @@
+/* /video/assets/css/player.css (VERSIÓN CORREGIDA Y FUNCIONAL) */
+
+/* --- ESTILOS GENERALES Y CONTENEDOR --- */
+html, body {
+    margin: 0 !important; /* <--- Agregamos !important para anular cualquier margin */
+    padding: 0 !important; /* <--- Agregamos !important para anular cualquier padding */
+    height: 100% !important; /* <--- Agregamos !important para asegurar la altura */
+    width: 100% !important; /* <--- Aseguramos el ancho al 100% */
+    overflow: hidden !important; /* <--- Aseguramos que no haya scroll y ocultamos cualquier desbordamiento */
+    display: block;
+}
+
+body {
+    background-color: transparent !important; /* Mantiene el fondo transparente */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* --- TRUCO PARA OCULTAR BRANDING DE YOUTUBE --- */
+#player-container {
+    width: 100%;
+    max-width: 900px;
+    aspect-ratio: 16/9;
+    position: relative;
+    background-color: #000;
+    overflow: hidden; /* ¡La clave! Oculta todo lo que se salga del contenedor. */
+}
+
+
+
+#youtube-player {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    top: 50%;
+    left: 50%;
+    height: calc(100% + 330px);
+    transform: translate(-50%,-50%);
+    object-fit: contain; 
+    z-index: 1;
+}
+
+
+/* --- CAPA DE LA MINIATURA Y BOTÓN GRANDE --- */
+.preview-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3; /* Por encima del video, por debajo de los controles */
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    cursor: pointer;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.preview-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none; /* No se puede hacer clic cuando está oculta */
+}
+
+#big-play-button {
+    width: 90px;
+    height: 90px;
+    background-color: var(--main-color, #0084ff);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--controls-color, #ffffff);
+    transition: transform 0.2s ease;
+}
+
+#big-play-button:hover {
+    transform: scale(1.1);
+}
+
+#big-play-button svg {
+    width: 85%;
+    height: 85%;
+    margin-left: 5%; /* Ajuste para centrar visualmente el ícono de play */
+}
+
+.preview-overlay-text {
+    color: var(--controls-color, #ffffff);
+    margin-top: 15px;
+    font-size: 1.9em;
+    font-weight: bold;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    text-transform: uppercase;
+}
+
+/* --- BARRA DE CONTROLES INFERIOR --- */
+.custom-controls-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 4; /* La capa más alta */
+    background-image: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    padding: 5px 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Muestra los controles cuando el mouse está activo o el video está pausado */
+#player-container.controls-active .custom-controls-bar,
+#player-container.paused .custom-controls-bar {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* --- BARRA DE PROGRESO --- */
+.progress-bar-container {
+    height: 15px;
+    margin: 0 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background-color: #4a4e56; /* Color gris fijo */
+    border-radius: 2px;
+    position: relative;
+}
+
+.played-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: var(--bars-bg-color, #0084ff);
+    border-radius: 2px;
+}
+
+.progress-thumb {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    background-color: var(--main-color, #0084ff); /* Variable de color */
+    border-radius: 50%;
+    margin-left: -7px; /* Centrar el pulgar */
+}
+
+/* --- BOTONES Y CONTROLES INFERIORES --- */
+.bottom-controls {
+    height: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;
+}
+
+.controls-left, .controls-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* -- LA CORRECCIÓN DE TAMAÑO DE ICONOS -- */
+.control-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--controls-color, #ffffff); /* Variable de color */
+    line-height: 0;
+    /* Se define un tamaño fijo para el botón */
+    width: 24px;
+    height: 24px;
+}
+
+.control-button svg {
+    /* El ícono SVG ocupará el 100% del tamaño del botón */
+    width: 100%;
+    height: 100%;
+}
+
+.time-display {
+    color: var(--controls-color, #ffffff); /* Variable de color */
+    font-size: 14px;
+    user-select: none; /* Evita que se pueda seleccionar el texto del tiempo */
+}
+
+/* --- CONTROL DE VOLUMEN --- */
+.volume-container {
+    display: flex;
+    align-items: center;
+}
+
+.volume-slider-container {
+    display: flex;
+    align-items: center;
+    width: 80px;
+    height: 40px; /* Misma altura que los botones para alineación */
+    padding: 0 5px;
+}
+
+.volume-slider {
+    width: 100%;
+    height: 4px;
+    background-color: #4a4e56; /* Color gris fijo */
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+}
+
+.volume-level {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: var(--bars-bg-color, #0084ff);
+    border-radius: 2px;
+}
+
+/* --- ESTILOS PARA EL MENÚ DE AJUSTES (CALIDAD) --- */
+
+.settings-container {
+    position: relative; /* Contenedor para posicionar el menú */
+    display: flex;
+    align-items: center;
+}
+
+.settings-menu {
+    position: absolute;
+    bottom: 50px; /* Posición justo encima de la barra de controles */
+    right: 0;
+     background-color: transparent; /* Fondo invisible */
+    backdrop-filter: blur(5px);
+    border-radius: 6px;
+    padding: 5px;
+    width: 140px; /* Ancho del menú */
+    z-index: 5; /* Asegura que esté por encima de todo */
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.settings-menu button {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #e0e6f1;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.settings-menu button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.settings-menu button.active {
+    background-color: var(--main-color, #0084ff);
+    color: #ffffff;
+    font-weight: 500;
+}
+/* AÑADIR ESTA REGLA AL FINAL DE player.css */
+
+.preview-overlay.gif-mode {
+    background-image: none !important;
+}
+/* --- ESTILO PARA EL NOTIFICADOR DE CALIDAD --- */
+
+.quality-notice {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    z-index: 10;
+    font-size: 14px;
+    font-weight: 500;
+    display: none; /* Oculto por defecto */
+    transition: opacity 0.3s ease;
+}
+/* --- ESTILO PARA NOTIFICACIÓN DE SOLICITUD --- */
+.temporary-notice {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 6px;
+    z-index: 11; /* Por encima de todo */
+    font-size: 16px;
+    font-weight: 500;
+    display: none; /* Oculto por defecto */
+    transition: opacity 0.3s ease;
+    pointer-events: none; /* No interfiere con los clics */
+}
+/* --- Estilo para el contorno del icono de Play --- */
+#big-play-button svg polygon {
+    fill: none; /* Sin relleno */
+    stroke: var(--controls-color, #ffffff); /* Color del borde, usa la variable de controles */
+    stroke-width: 8; /* Grosor del borde (puedes ajustarlo si lo quieres más fino o grueso) */
+}
+/* --- Estilos para el contenedor del texto y botón --- */
+.preview-content-wrapper.has-text-bg {
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo gris semitransparente */
+    padding: 35px 45px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px; /* Espacio entre el botón y el texto */
+}
+
+/* Ajuste para que el texto no tenga margen propio cuando está dentro del contenedor */
+.preview-content-wrapper .preview-overlay-text {
+    margin-top: 0;
+}
+/* --- Estilos para los botones de Salto --- */
+.skip-button {
+    position: relative;
+}
+
+.skip-button span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--controls-color, #ffffff);
+}
+
+
+/* --- ESTILOS PARA EL FORMULARIO DE CAPTURA DE LEADS --- */
+
+.lead-form-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    z-index: 20;
+    display: none; /* Oculto por defecto */
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.lead-form-container {
+    background-color: #1a1b20;
+    border: 1px solid #40444c;
+    border-radius: 10px;
+    padding: 30px 40px;
+    max-width: 450px;
+    width: 100%;
+    text-align: center;
+    color: #e0e6f1;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.lead-form-container h3 {
+    margin: 0 0 20px 0;
+    font-size: 1.5em;
+}
+
+.lead-form-container input[type="text"],
+.lead-form-container input[type="email"] {
+    width: 100%;
+    padding: 12px;
+    background-color: #2c2f36;
+    border: 1px solid #4a4e56;
+    border-radius: 6px;
+    color: #e0e6f1;
+    font-size: 1em;
+    margin-bottom: 15px;
+    box-sizing: border-box; /* Asegura que el padding no afecte el ancho */
+}
+
+.lead-form-container .form-submit-btn {
+    width: 100%;
+    max-width: 90%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: var(--main-color, #0084ff);
+    color: var(--controls-color, #ffffff);
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.lead-form-container .form-submit-btn:hover {
+    transform: scale(1.02);
+}
+
+.lead-form-skip-btn {
+    background: none;
+    border: none;
+    color: #a0a7b1;
+    cursor: pointer;
+    margin-top: 20px;
+    font-size: 0.9em;
+    text-decoration: underline;
+}
+
+
+
+/* --- ESTILOS PARA EL CONTENEDOR PRINCIPAL Y CTA EXTERNO --- */
+
+body {
+    /* Ajustamos el body para que el contenido pueda crecer verticalmente */
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.main-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 900px; /* Misma anchura máxima que el reproductor */
+    margin: 0 auto; /* ¡Añadir esta línea para centrar horizontalmente! */
+}
+
+#external-cta-container {
+    width: 100%;
+    padding: 25px 0;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.5s ease, transform 0.5s ease, padding 0.5s ease, height 0.5s ease;
+    display: flex; /* <-- AÑADIR ESTA LÍNEA */
+    justify-content: center; /* <-- AÑADIR ESTA LÍNEA */
+}
+
+/* Estado oculto del botón */
+#external-cta-container.hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.cta-externo-btn {
+    display: block;
+    width: 35%;
+    padding: 15px 30px;
+    border-radius: 8px;
+    font-size: 1.2em;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cta-externo-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+
+
+
+/* --- ESTILOS PARA LA PANTALLA DE CONTRASEÑA --- */
+.password-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: #1a1b20;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+.password-form-container {
+    background-color: #2c2f36;
+    padding: 30px 40px;
+    border-radius: 10px;
+    border: 1px solid #40444c;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+}
+.password-form-container h3 { margin: 0 0 10px 0; font-size: 1.4em; }
+.password-form-container p { margin: 0 0 20px 0; color: #a0a7b1; }
+.password-form-container input[type="password"] {
+    width: 100%; padding: 12px; margin-bottom: 15px; background-color: #1e2025;
+    border: 1px solid #4a4e56; border-radius: 6px; color: #e0e0e0; font-size: 1em;
+}
+.password-form-container button {
+    width: 100%; padding: 12px; border: none; border-radius: 6px;
+    background-color: var(--main-color, #0084ff); color: #fff;
+    font-size: 1.1em; font-weight: 600; cursor: pointer;
+}
+.password-error-message { font-size: 0.9em; color: #e74c3c; min-height: 20px; margin-top: 10px !important; }
+
+
+/* --- ESTILOS PARA LAS MARCAS DE CAPÍTULOS VISUALES --- */
+
+.chapter-markers-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Permite que los clics pasen a través */
+}
+
+.chapter-marker {
+    position: absolute;
+    width: 6px;
+    height: 100%;
+    background-color: var(--main-color, #0084ff); /* Un color oscuro semi-transparente */
+    transform: translateX(-50%);
+}
+
+.progress-tooltip {
+    position: absolute;
+    bottom: 150%; /* Se posiciona encima de la barra de progreso */
+    left: 0;
+    transform: translateX(-50%);
+    background-color: var(--main-color, #0084ff);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out;
+    z-index: 10;
+}
+
+.progress-tooltip.visible {
+    opacity: 1;
+}
+
+/*
+============================================================
+--- AJUSTE FINAL SEO: OCULTAR LISTA DE CAPÍTULOS VISUALMENTE ---
+============================================================
+Oculta la lista de capítulos en la página para el usuario, 
+pero la mantiene en el código fuente para que Google la vea.
+*/
+.main-wrapper + .chapters-section-cliente {
+    display: none;
+}
